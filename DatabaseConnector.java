@@ -30,8 +30,14 @@ public class DatabaseConnector {
 		System.out.println("Connected");
 	}
 	
-	public void doSomething() {
-		
+	public void closeConnection() {
+		try {
+            conn.close();
+        }
+        catch (Exception ex)
+        {
+            System.out.println("Unable to close connection");
+        };
 	}
 	
 }

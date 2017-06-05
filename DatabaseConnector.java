@@ -3,9 +3,10 @@ import java.sql.*;
 public class DatabaseConnector {
 
 	private static Connection conn = null;
-	private String url = "jdbc:mysql://cslvm74.csc.calpoly.edu/tjsimko?user=tjsimko&password=dekhtyar";
+	private String url;
 	
-	public DatabaseConnector() {
+	public DatabaseConnector(String login, String pass, String db) {
+		url = "jdbc:mysql://cslvm74.csc.calpoly.edu/" + db + "?user=" + login + "&password=" + pass;
 		if (conn == null)
 		{
 			establishConnection();

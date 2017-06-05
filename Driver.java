@@ -1,6 +1,8 @@
 
 public class Driver {
 	public static void main(String[] args) {
-		DatabaseConnector dc = new DatabaseConnector();
+		
+		Credentials cred = new Credentials();
+		DatabaseConnector dc = new DatabaseConnector(cred.getLogin(), cred.getPass(), cred.getDB());
 	}
 }

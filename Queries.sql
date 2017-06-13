@@ -23,6 +23,12 @@ FROM
 
 ;
 
+
+SELECT DATEFORMAT(p.day, '%y' ) as Year, p.ticker, SUM(volume), AVG(close), AVG(volume)
+FROM Prices p
+WHERE ticker='KLAC'
+GROUP BY year, ticker;
+
 -- General Q2
 
 SELECT Ticker
@@ -91,56 +97,14 @@ WHERE t1.num = t2.num;
 
 
 
-SELECT t1.year, t1.ticker, t1.diff
-FROM
-   (SELECT min.year, min.ticker, max.close - min.open as diff
-   FROM
-      (SELECT t.year, t.ticker, p1.open
-      FROM
-         (SELECT YEAR(Day) as year, ticker, min(Day) as day
-         FROM Prices p
-         GROUP BY YEAR(Day), ticker) t,
-         Prices p1
-      WHERE t.day = p1.day and p1.ticker = t.ticker) min
-
-      NATURAL JOIN
-
-      (SELECT t.year, t.ticker, p1.close
-      FROM
-         (SELECT YEAR(Day) as year, ticker, max(Day) as day
-         FROM Prices p
-         GROUP BY YEAR(Day), ticker) t,
-         Prices p1
-      WHERE t.day = p1.day and p1.ticker = t.ticker) max
-   ORDER BY min.year, (max.close - min.open) DESC) t1,
-
-   (SELECT min.year, min.ticker, max.close - min.open as diff
-   FROM
-      (SELECT t.year, t.ticker, p1.open
-      FROM
-         (SELECT YEAR(Day) as year, ticker, min(Day) as day
-         FROM Prices p
-         GROUP BY YEAR(Day), ticker) t,
-         Prices p1
-      WHERE t.day = p1.day and p1.ticker = t.ticker) min
-
-      NATURAL JOIN
-
-      (SELECT t.year, t.ticker, p1.close
-      FROM
-         (SELECT YEAR(Day) as year, ticker, max(Day) as day
-         FROM Prices p
-         GROUP BY YEAR(Day), ticker) t,
-         Prices p1
-      WHERE t.day = p1.day and p1.ticker = t.ticker) max
-   ORDER BY min.year, (max.close - min.open) DESC) t2
-WHERE t1.year = t2.year and t1.diff < t2.diff
-GROUP BY t1.year, t1.ticker, t1.diff
-HAVING count(*) <= 5;
 
 
 
 
 
-
-
+=======
+-- Individual
+SELECT s.ticker, s.name, MIN(p.DAY), MAX(p.Day)
+FROM Securities s join Prices p on s.ticker=p.ticker
+WHERE s.ticker='KLAC'
+GROUP BY s.ticker;

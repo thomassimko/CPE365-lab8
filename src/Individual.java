@@ -1,4 +1,7 @@
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 
 public class Individual {
@@ -77,10 +80,10 @@ public class Individual {
     "GROUP BY stock.year, stock.month) counts GROUP BY counts.year) max " +
 	"where max.max=counts.Difference group by counts.year;";
 	
-	private String q5 = "SELECT sector.year, sector.month, stock.AvgRelChange as StockChange, " +
-	"sector.AvgRelChange as SectorChange, " +
-    "stock.AvgRelChange-sector.AvgRelChange as Difference " + 
-    "FROM (SELECT stats.year, stats.month, 100-100*AVG(close.Price/open.Price) as AvgRelChange " +
+	private String q5 = "SELECT sector.year, sector.month, stock.StockChange, " +
+	"sector.SectorChange, " +
+    "stock.StockChange-sector.SectorChange as Difference " + 
+    "FROM (SELECT stats.year, stats.month, 100-100*AVG(close.Price/open.Price) as StockChange " +
     "FROM (((SELECT ap.ticker, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.day) as " +
     "FirstDay,MAX(ap.day) as LastDay " +
     "FROM AdjustedPrices ap WHERE ap.ticker=? and ap.day<? " + 
@@ -89,7 +92,7 @@ public class Individual {
     "ON open.day=stats.FirstDay) LEFT JOIN (SELECT ap.ticker, ap.day, ap.close as Price " +
     "FROM AdjustedPrices ap WHERE ap.ticker=? and ap.day<?) close " +
     "ON close.day=stats.LastDay) GROUP BY stats.year, stats.month) stock JOIN " +
-    "(SELECT stats.year, stats.month, 100-100*AVG(cSect.Price/oSect.Price) as AvgRelChange " +
+    "(SELECT stats.year, stats.month, 100-100*AVG(cSect.Price/oSect.Price) as SectorChange " +
     "FROM (((SELECT s.Sector, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.day) as " +
     "FirstDay,MAX(ap.day) as LastDay FROM (AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker) " +
     "WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry FROM Securities s WHERE " +
@@ -113,8 +116,8 @@ public class Individual {
 	private ResultSet r3;
 	private ResultSet r4;
 	
-	private ResultSet r5[];
-	private ResultSet r6[];
+	private HashMap<String,List<HashMap<String,Object>>> r5;
+	private HashMap<String,List<HashMap<String,Object>>> r6;
 
 	private ResultSet r7;
 	private ResultSet r8;
@@ -194,7 +197,9 @@ public class Individual {
 		}
 	}
 	private void query5() {
-		r5 = new ResultSet[6];
+		r5 = new HashMap<String,List<HashMap<String,Object>>>();
+		String date = "";
+
 		try {
 			PreparedStatement ps = dc.getConnection().prepareStatement(q5);
 			ps.setString(1, ticker);
@@ -203,38 +208,60 @@ public class Individual {
 			ps.setString(7, ticker);
 			ps.setString(9, ticker);
 			ps.setString(11, ticker);
-			ps.setDate(2, java.sql.Date.valueOf("2015-01-01"));
-			ps.setDate(4, java.sql.Date.valueOf("2015-01-01"));
-			ps.setDate(6, java.sql.Date.valueOf("2015-01-01"));
-			ps.setDate(8, java.sql.Date.valueOf("2015-01-01"));
-			ps.setDate(10, java.sql.Date.valueOf("2015-01-01"));
-			ps.setDate(12, java.sql.Date.valueOf("2015-01-01"));
-			r5[0] = ps.executeQuery();
 			
-			ps.setDate(2, java.sql.Date.valueOf("2015-06-01"));
-			ps.setDate(4, java.sql.Date.valueOf("2015-06-01"));
-			ps.setDate(6, java.sql.Date.valueOf("2015-06-01"));
-			r5[1] = ps.executeQuery();
+			date="2015-01-01";
+			ps.setDate(2, java.sql.Date.valueOf(date));
+			ps.setDate(4, java.sql.Date.valueOf(date));
+			ps.setDate(6, java.sql.Date.valueOf(date));
+			ps.setDate(8, java.sql.Date.valueOf(date));
+			ps.setDate(10, java.sql.Date.valueOf(date));
+			ps.setDate(12, java.sql.Date.valueOf(date));
+			r5.put(date,dc.resultSetToTuples(ps.executeQuery()));
 			
-			ps.setDate(2, java.sql.Date.valueOf("2015-10-01"));
-			ps.setDate(4, java.sql.Date.valueOf("2015-10-01"));
-			ps.setDate(6, java.sql.Date.valueOf("2015-10-01"));
-			r5[2] = ps.executeQuery();
+			date="2015-06-01";
+			ps.setDate(2, java.sql.Date.valueOf(date));
+			ps.setDate(4, java.sql.Date.valueOf(date));
+			ps.setDate(6, java.sql.Date.valueOf(date));
+			ps.setDate(8, java.sql.Date.valueOf(date));
+			ps.setDate(10, java.sql.Date.valueOf(date));
+			ps.setDate(12, java.sql.Date.valueOf(date));
+			r5.put(date,dc.resultSetToTuples(ps.executeQuery()));
 			
-			ps.setDate(2, java.sql.Date.valueOf("2016-01-01"));
-			ps.setDate(4, java.sql.Date.valueOf("2016-01-01"));
-			ps.setDate(6, java.sql.Date.valueOf("2016-01-01"));
-			r5[3] = ps.executeQuery();
+			date="2015-10-01";
+			ps.setDate(2, java.sql.Date.valueOf(date));
+			ps.setDate(4, java.sql.Date.valueOf(date));
+			ps.setDate(6, java.sql.Date.valueOf(date));
+			ps.setDate(8, java.sql.Date.valueOf(date));
+			ps.setDate(10, java.sql.Date.valueOf(date));
+			ps.setDate(12, java.sql.Date.valueOf(date));
+			r5.put(date,dc.resultSetToTuples(ps.executeQuery()));
 			
-			ps.setDate(2, java.sql.Date.valueOf("2016-05-01"));
-			ps.setDate(4, java.sql.Date.valueOf("2016-05-01"));
-			ps.setDate(6, java.sql.Date.valueOf("2016-05-01"));
-			r5[4] = ps.executeQuery();
+			date="2016-01-01";
+			ps.setDate(2, java.sql.Date.valueOf(date));
+			ps.setDate(4, java.sql.Date.valueOf(date));
+			ps.setDate(6, java.sql.Date.valueOf(date));
+			ps.setDate(8, java.sql.Date.valueOf(date));
+			ps.setDate(10, java.sql.Date.valueOf(date));
+			ps.setDate(12, java.sql.Date.valueOf(date));
+			r5.put(date,dc.resultSetToTuples(ps.executeQuery()));
 			
-			ps.setDate(2, java.sql.Date.valueOf("2016-10-01"));
-			ps.setDate(4, java.sql.Date.valueOf("2016-10-01"));
-			ps.setDate(6, java.sql.Date.valueOf("2016-10-01"));
-			r5[5] = ps.executeQuery();
+			date="2016-05-01";
+			ps.setDate(2, java.sql.Date.valueOf(date));
+			ps.setDate(4, java.sql.Date.valueOf(date));
+			ps.setDate(6, java.sql.Date.valueOf(date));
+			ps.setDate(8, java.sql.Date.valueOf(date));
+			ps.setDate(10, java.sql.Date.valueOf(date));
+			ps.setDate(12, java.sql.Date.valueOf(date));
+			r5.put(date,dc.resultSetToTuples(ps.executeQuery()));
+			
+			date="2016-10-01";
+			ps.setDate(2, java.sql.Date.valueOf(date));
+			ps.setDate(4, java.sql.Date.valueOf(date));
+			ps.setDate(6, java.sql.Date.valueOf(date));
+			ps.setDate(8, java.sql.Date.valueOf(date));
+			ps.setDate(10, java.sql.Date.valueOf(date));
+			ps.setDate(12, java.sql.Date.valueOf(date));
+			r5.put(date,dc.resultSetToTuples(ps.executeQuery()));
 			
 			//dc.closeConnection();
 		} catch (Exception ex) {
@@ -243,47 +270,83 @@ public class Individual {
 		}
 	}
 	private void query6() {
-		r6 = new ResultSet[6];
-//		try {
-//			PreparedStatement ps = dc.getConnection().prepareStatement(q5);
-//			ps.setString(1, ticker);
-//			ps.setString(3, ticker);
-//			ps.setString(5, ticker);
-//			ps.setDate(2, java.sql.Date.valueOf("2015-04-01"));
-//			ps.setDate(4, java.sql.Date.valueOf("2015-04-01"));
-//			ps.setDate(6, java.sql.Date.valueOf("2015-04-01"));
-//			r6[0] = ps.executeQuery();
-//			
-//			ps.setDate(2, java.sql.Date.valueOf("2015-09-01"));
-//			ps.setDate(4, java.sql.Date.valueOf("2015-09-01"));
-//			ps.setDate(6, java.sql.Date.valueOf("2015-09-01"));
-//			r6[1] = ps.executeQuery();
-//			
-//			ps.setDate(2, java.sql.Date.valueOf("2016-1-01"));
-//			ps.setDate(4, java.sql.Date.valueOf("2016-1-01"));
-//			ps.setDate(6, java.sql.Date.valueOf("2016-1-01"));
-//			r6[2] = ps.executeQuery();
-//			
-//			ps.setDate(2, java.sql.Date.valueOf("2016-04-01"));
-//			ps.setDate(4, java.sql.Date.valueOf("2016-04-01"));
-//			ps.setDate(6, java.sql.Date.valueOf("2016-04-01"));
-//			r6[3] = ps.executeQuery();
-//			
-//			ps.setDate(2, java.sql.Date.valueOf("2016-08-01"));
-//			ps.setDate(4, java.sql.Date.valueOf("2016-08-01"));
-//			ps.setDate(6, java.sql.Date.valueOf("2016-08-01"));
-//			r6[4] = ps.executeQuery();
-//			
-//			ps.setDate(2, java.sql.Date.valueOf("2017-1-01"));
-//			ps.setDate(4, java.sql.Date.valueOf("2017-1-01"));
-//			ps.setDate(6, java.sql.Date.valueOf("2017-1-01"));
-//			r6[5] = ps.executeQuery();
-//			
-//			//dc.closeConnection();
-//		} catch (Exception ex) {
-//			System.out.println("Error executing Q6");
-//			ex.printStackTrace();
-//		}
+		r6 = new HashMap<String, List<HashMap<String,Object>>>();
+		String date = "";
+		try {
+			PreparedStatement ps = dc.getConnection().prepareStatement(q5);
+			ps.setString(1, ticker);
+			ps.setString(3, ticker);
+			ps.setString(5, ticker);
+			ps.setString(7, ticker);
+			ps.setString(9, ticker);
+			ps.setString(11, ticker);
+			
+			date="2015-04-01";
+			ps.setDate(2, java.sql.Date.valueOf(date));
+			ps.setDate(4, java.sql.Date.valueOf(date));
+			ps.setDate(6, java.sql.Date.valueOf(date));
+			ps.setDate(8, java.sql.Date.valueOf(date));
+			ps.setDate(10, java.sql.Date.valueOf(date));
+			ps.setDate(12, java.sql.Date.valueOf(date));
+			date="2015-01-01";
+			r6.put(date,dc.resultSetToTuples(ps.executeQuery()));
+			
+			date="2015-09-01";
+			ps.setDate(2, java.sql.Date.valueOf(date));
+			ps.setDate(4, java.sql.Date.valueOf(date));
+			ps.setDate(6, java.sql.Date.valueOf(date));
+			ps.setDate(8, java.sql.Date.valueOf(date));
+			ps.setDate(10, java.sql.Date.valueOf(date));
+			ps.setDate(12, java.sql.Date.valueOf(date));
+			date="2015-06-01";
+			r6.put(date,dc.resultSetToTuples(ps.executeQuery()));
+			
+			date="2016-01-01";
+			ps.setDate(2, java.sql.Date.valueOf(date));
+			ps.setDate(4, java.sql.Date.valueOf(date));
+			ps.setDate(6, java.sql.Date.valueOf(date));
+			ps.setDate(8, java.sql.Date.valueOf(date));
+			ps.setDate(10, java.sql.Date.valueOf(date));
+			ps.setDate(12, java.sql.Date.valueOf(date));
+			date="2015-10-01";
+			r6.put(date,dc.resultSetToTuples(ps.executeQuery()));
+			
+			date="2016-04-01";
+			ps.setDate(2, java.sql.Date.valueOf(date));
+			ps.setDate(4, java.sql.Date.valueOf(date));
+			ps.setDate(6, java.sql.Date.valueOf(date));
+			ps.setDate(8, java.sql.Date.valueOf(date));
+			ps.setDate(10, java.sql.Date.valueOf(date));
+			ps.setDate(12, java.sql.Date.valueOf(date));
+			date="2016-01-01";
+			r6.put(date,dc.resultSetToTuples(ps.executeQuery()));
+			
+			date="2016-08-01";
+			ps.setDate(2, java.sql.Date.valueOf(date));
+			ps.setDate(4, java.sql.Date.valueOf(date));
+			ps.setDate(6, java.sql.Date.valueOf(date));
+			ps.setDate(8, java.sql.Date.valueOf(date));
+			ps.setDate(10, java.sql.Date.valueOf(date));
+			ps.setDate(12, java.sql.Date.valueOf(date));
+			date="2016-05-01";
+			r6.put(date,dc.resultSetToTuples(ps.executeQuery()));
+			
+			date="2017-01-01";
+			ps.setDate(2, java.sql.Date.valueOf(date));
+			ps.setDate(4, java.sql.Date.valueOf(date));
+			ps.setDate(6, java.sql.Date.valueOf(date));
+			ps.setDate(8, java.sql.Date.valueOf(date));
+			ps.setDate(10, java.sql.Date.valueOf(date));
+			ps.setDate(12, java.sql.Date.valueOf(date));
+			date="2016-10-01";
+			r6.put(date,dc.resultSetToTuples(ps.executeQuery()));
+			
+			
+			//dc.closeConnection();
+		} catch (Exception ex) {
+			System.out.println("Error executing Q6");
+			ex.printStackTrace();
+		}
 	}
 	private void query7() {
 		
@@ -304,10 +367,10 @@ public class Individual {
 	public ResultSet getR4() {
 		return r4;
 	}
-	public ResultSet[] getR5() {
+	public HashMap<String, List<HashMap<String,Object>>> getR5() {
 		return r5;
 	}
-	public ResultSet[] getR6() {
+	public HashMap<String, List<HashMap<String,Object>>> getR6() {
 		return r6;
 	}
 	

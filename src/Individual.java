@@ -102,7 +102,7 @@ public class Individual {
 			PreparedStatement ps = dc.getConnection().prepareStatement(q1);
 			ps.setString(1, ticker);
 			r1 = ps.executeQuery();
-			dc.closeConnection();
+			//dc.closeConnection();
 		} catch (Exception ex) {
 			System.out.println("Error executing Q1");
 			ex.printStackTrace();
@@ -114,7 +114,7 @@ public class Individual {
 			ps.setString(1, ticker);
 			ps.setString(2, ticker);
 			r2 = ps.executeQuery();
-			dc.closeConnection();
+			//dc.closeConnection();
 		} catch (Exception ex) {
 			System.out.println("Error executing Q2");
 			ex.printStackTrace();
@@ -126,7 +126,7 @@ public class Individual {
 			ps.setString(1, ticker);
 			ps.setString(2, ticker);
 			r3 = ps.executeQuery();
-			dc.closeConnection();
+			//dc.closeConnection();
 		} catch (Exception ex) {
 			System.out.println("Error executing Q3");
 			ex.printStackTrace();
@@ -139,7 +139,7 @@ public class Individual {
 			ps.setString(2, ticker);
 			ps.setString(3, ticker);
 			r4 = ps.executeQuery();
-			dc.closeConnection();
+			//dc.closeConnection();
 		} catch (Exception ex) {
 			System.out.println("Error executing Q4");
 			ex.printStackTrace();
@@ -182,7 +182,7 @@ public class Individual {
 			ps.setDate(6, java.sql.Date.valueOf("2016-10-01"));
 			r5[5] = ps.executeQuery();
 			
-			dc.closeConnection();
+			//dc.closeConnection();
 		} catch (Exception ex) {
 			System.out.println("Error executing Q5");
 			ex.printStackTrace();
@@ -225,7 +225,7 @@ public class Individual {
 			ps.setDate(6, java.sql.Date.valueOf("2017-1-01"));
 			r6[5] = ps.executeQuery();
 			
-			dc.closeConnection();
+			//dc.closeConnection();
 		} catch (Exception ex) {
 			System.out.println("Error executing Q6");
 			ex.printStackTrace();

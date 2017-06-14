@@ -64,7 +64,9 @@ public class DatabaseConnector {
 			while (rs.next()) {
 				HashMap<String, Object> row = new HashMap<String, Object>(col);
 				for(int i = 1; i <= col; ++i) {
-					row.put(md.getColumnName(i), rs.getObject(i));
+					
+					Object obj = rs.getObject(i);
+					row.put(md.getColumnName(i), obj);
 				}
 				result.add(row);
 			}
@@ -75,18 +77,37 @@ public class DatabaseConnector {
 		}
 		return result;
 	}
+	
 	public List<List<String>> tuplesToList(List<HashMap<String, Object>> tuples) {
 		ArrayList<List<String>> ret = new ArrayList<List<String>>();
 		for(HashMap<String,Object> tuple : tuples) {
+			
 			ret.add(tupleToString(tuple));
 		}
 		return ret;
 	}
-	public List<String> tupleToString(HashMap<String,Object> tuple) {
+	private List<String> tupleToString(HashMap<String,Object> tuple) {
 		ArrayList<String> ret = new ArrayList<String>();
-		for(Object value: tuple.values())
+		for(Object value: tuple.values()) {
 			ret.add(value.toString());
+		}
 		return ret;
+	}
+	
+	public List<String> getColumnNames(ResultSet rs) {
+		ArrayList<String> columns = new ArrayList<String>();
+		ResultSetMetaData md;
+		try {
+			md = (ResultSetMetaData) rs.getMetaData();
+			int col = md.getColumnCount();
+			for(int i = 1; i <= col; ++i) {
+				columns.add(md.getColumnName(i));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return columns;
 	}
 	
 }

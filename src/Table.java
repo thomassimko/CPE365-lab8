@@ -7,7 +7,7 @@ public class Table {
 	public Table() {
 
 		out = new StringBuilder();
-		out.append("<table>\n");
+		out.append("<table style=\"width:100%\">\n");
 	}
 	
 	public void addColumns(List<String> columnNames) {

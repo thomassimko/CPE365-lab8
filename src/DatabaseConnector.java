@@ -53,7 +53,7 @@ public class DatabaseConnector {
 		return conn;
 	}
 	
-	public static List<HashMap<String, Object>> queryDatabase(ResultSet rs)
+	public List<HashMap<String, Object>> resultSetToTuples(ResultSet rs)
 	{
 		List<HashMap<String,Object>> result = new ArrayList<HashMap<String,Object>>();
 
@@ -74,6 +74,19 @@ public class DatabaseConnector {
 			ex.printStackTrace();
 		}
 		return result;
-}
+	}
+	public List<List<String>> tuplesToList(List<HashMap<String, Object>> tuples) {
+		ArrayList<List<String>> ret = new ArrayList<List<String>>();
+		for(HashMap<String,Object> tuple : tuples) {
+			ret.add(tupleToString(tuple));
+		}
+		return ret;
+	}
+	public List<String> tupleToString(HashMap<String,Object> tuple) {
+		ArrayList<String> ret = new ArrayList<String>();
+		for(Object value: tuple.values())
+			ret.add(value.toString());
+		return ret;
+	}
 	
 }

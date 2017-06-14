@@ -23,20 +23,24 @@ FROM
 
 ;
 
-
-SELECT DATEFORMAT(p.day, '%y' ) as Year, p.ticker, SUM(volume), AVG(close), AVG(volume)
-FROM Prices p
-WHERE ticker='KLAC'
-GROUP BY year, ticker;
-
 -- General Q2
 
-SELECT Ticker
-FROM Prices p
-WHERE YEAR(p.day) = 2016
-GROUP BY Ticker
-ORDER BY SUM(p.volume) DESC
-LIMIT 10;
+SELECT t1.ticker, t1.s as volumeTraded
+FROM
+   (SELECT Ticker, SUM(p.volume) as s
+   FROM Prices p
+   WHERE YEAR(p.day) = 2016
+   GROUP BY Ticker
+   ORDER BY s DESC) t1,
+
+   (SELECT Ticker, SUM(p.volume) as s
+   FROM Prices p
+   WHERE YEAR(p.day) = 2016
+   GROUP BY Ticker) t2
+WHERE t1.s <= t2.s
+GROUP BY t1.ticker, t1.s
+HAVING count(*) <= 10
+ORDER BY volumeTraded DESC;
 
 
 -- General Q3
@@ -94,6 +98,59 @@ JOIN
    )relYears on (absYears.year=relYears.Year and absYears.Place=relYears.Place)
 ORDER BY year, Place;
 
+
+
+-- General 4
+
+SELECT r1.ticker, r1.relativeGrowth
+FROM
+   (SELECT t1.ticker, t2.close / t1.open as relativeGrowth
+   FROM
+      (SELECT p.ticker, p.day, p.open
+      FROM
+         Prices p,
+         (SELECT ticker, min(day) as start, max(day) as end
+         FROM Prices
+         WHERE YEAR(day) = 2016
+         GROUP BY ticker) days
+      WHERE p.ticker = days.ticker and p.day = days.start) t1,
+
+      (SELECT p.ticker, p.day, p.close
+      FROM
+         Prices p,
+         (SELECT ticker, min(day) as start, max(day) as end
+         FROM Prices
+         WHERE YEAR(day) = 2016
+         GROUP BY ticker) days
+      WHERE p.ticker = days.ticker and p.day = days.end) t2
+   WHERE t1.ticker = t2.ticker
+   ORDER BY relativeGrowth DESC) r1,
+
+   (SELECT t1.ticker, t2.close / t1.open as relativeGrowth
+   FROM
+      (SELECT p.ticker, p.day, p.open
+      FROM
+         Prices p,
+         (SELECT ticker, min(day) as start, max(day) as end
+         FROM Prices
+         WHERE YEAR(day) = 2016
+         GROUP BY ticker) days
+      WHERE p.ticker = days.ticker and p.day = days.start) t1,
+
+      (SELECT p.ticker, p.day, p.close
+      FROM
+         Prices p,
+         (SELECT ticker, min(day) as start, max(day) as end
+         FROM Prices
+         WHERE YEAR(day) = 2016
+         GROUP BY ticker) days
+      WHERE p.ticker = days.ticker and p.day = days.end) t2
+   WHERE t1.ticker = t2.ticker
+   ORDER BY relativeGrowth DESC) r2
+WHERE r1.relativeGrowth <= r2.relativeGrowth
+GROUP BY r1.ticker, r1.relativeGrowth
+HAVING count(*) <= 10
+ORDER BY r1.relativeGrowth DESC;
 
 
 

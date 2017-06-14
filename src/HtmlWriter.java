@@ -35,6 +35,15 @@ public class HtmlWriter {
 	
 	public void addHeading(String heading) {
 		try {
+			writer.write("<h3>" + heading + "</h3>\n");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void addSection(String heading) {
+		try {
 			writer.write("<h1>" + heading + "</h1>\n");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

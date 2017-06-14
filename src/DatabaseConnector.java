@@ -78,18 +78,18 @@ public class DatabaseConnector {
 		return result;
 	}
 	
-	public List<List<String>> tuplesToList(List<HashMap<String, Object>> tuples) {
+	public List<List<String>> tuplesToList(List<HashMap<String, Object>> tuples, List<String> columns) {
 		ArrayList<List<String>> ret = new ArrayList<List<String>>();
 		for(HashMap<String,Object> tuple : tuples) {
 			
-			ret.add(tupleToString(tuple));
+			ret.add(tupleToString(tuple, columns));
 		}
 		return ret;
 	}
-	private List<String> tupleToString(HashMap<String,Object> tuple) {
+	private List<String> tupleToString(HashMap<String,Object> tuple, List<String> columns) {
 		ArrayList<String> ret = new ArrayList<String>();
-		for(Object value: tuple.values()) {
-			ret.add(value.toString());
+		for(String key: columns) {
+			ret.add(tuple.get(key).toString());
 		}
 		return ret;
 	}

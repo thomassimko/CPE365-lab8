@@ -156,18 +156,5 @@ public class Driver {
 
 		html.publishHtml();
 		
-		Table t4 = new Table();
-		t4.addColumns(dc.getColumnNames(ind.getR4()));
-		List<List<String>> rs4 = dc.tuplesToList(dc.resultSetToTuples(ind.getR4()));
-		for (List<String> tuple : rs4) {
-			t4.addRow(tuple);
-		}
-		html.addTable(t4.getTable());
-		
-		
-		
-		
-		html.publishHtml();
-		
 	}
 }

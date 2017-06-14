@@ -137,12 +137,9 @@ ORDER BY Month(p.Day);
 -- performance in your HTML text, and provide the results2
 
 -- Monthly Sector Performance for specified ticker up to the date specified
-SELECT stats.*, AVG(oSect.Price) as AvgOpen, AVG(cSect.Price) as AvgClose,
-      AVG(cSect.Price-oSect.Price) as AvgAbsChange,
-      100*AVG(cSect.Price/oSect.Price) as AvgRelChange
+SELECT stats.year, stats.month, 100*AVG(cSect.Price/oSect.Price) as AvgRelChange
 FROM (((SELECT s.Sector, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.day) as FirstDay,MAX(ap.day) as 
-         LastDay, AVG(ap.Volume) as AvgVol, AVG(ap.low) as MonthlyLow, 
-         AVG(ap.high) as MonthlyHigh
+         LastDay
    FROM (AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker)
    WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry
                       FROM Securities s
@@ -166,12 +163,9 @@ GROUP BY stats.year, stats.month;
 -- comparisons for determining best performance will be done in Java as they 
 -- will be more efficient.
 
-SELECT stats.*, AVG(open.Price) as AvgOpen, AVG(close.Price) as AvgClose,
-      AVG(close.Price-open.Price) as AvgAbsChange,
-      100*AVG(close.Price/open.Price) as AvgRelChange
+SELECT stats.year, stats.month, 100*AVG(close.Price/open.Price) as AvgRelChange
 FROM (((SELECT ap.ticker, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.day) as FirstDay,MAX(ap.day) as 
-         LastDay, AVG(ap.Volume) as AvgVol, AVG(ap.low) as MonthlyLow, 
-         AVG(ap.high) as MonthlyHigh
+         LastDay
    FROM AdjustedPrices ap
    WHERE ap.ticker='KLAC' and ap.day<'2017-06-13'
    GROUP BY year, month) stats 
@@ -186,3 +180,160 @@ FROM (((SELECT ap.ticker, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.d
    ON close.day=stats.LastDay)
 GROUP BY stats.year, stats.month;
 
+
+SELECT counts.*
+FROM (SELECT stock.year, stock.month, stock.AvgRelChange-industry.AvgRelChange as Difference
+      FROM (SELECT stats.year, stats.month, 100*AVG(close.Price/open.Price) as AvgRelChange
+            FROM (((SELECT ap.ticker, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.day) as FirstDay,MAX(ap.day) as 
+                     LastDay
+               FROM AdjustedPrices ap
+               WHERE ap.ticker='KLAC' and ap.day<'2017-06-13'
+               GROUP BY year, month) stats 
+               LEFT JOIN (SELECT ap.ticker, ap.day, ap.Open as Price
+                          FROM AdjustedPrices ap
+                          WHERE ap.ticker='KLAC'  and ap.day<'2017-06-13'
+                          ) open
+               ON open.day=stats.FirstDay)
+               LEFT JOIN (SELECT ap.ticker, ap.day, ap.close as Price
+                          FROM AdjustedPrices ap 
+                          WHERE ap.ticker='KLAC' and ap.day<'2017-06-13') close
+               ON close.day=stats.LastDay)
+            GROUP BY stats.year, stats.month) stock
+            JOIN 
+            (SELECT stats.year, stats.month, 100*AVG(cSect.Price/oSect.Price) as AvgRelChange
+            FROM (((SELECT s.Sector, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.day) as FirstDay,MAX(ap.day) as 
+                     LastDay
+               FROM (AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker)
+               WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry
+                                  FROM Securities s
+                                  WHERE s.ticker='KLAC') and ap.day<'2017-06-13'
+               GROUP BY s.Sector,year, month) stats 
+               LEFT JOIN (SELECT ap.ticker, s.sector, ap.day, ap.Open as Price
+                          FROM AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker
+                          WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry
+                                             FROM Securities s
+                                             WHERE s.ticker='KLAC') and ap.day<'2017-06-13') oSect
+               ON oSect.day=stats.FirstDay)
+               LEFT JOIN (SELECT ap.ticker, s.sector, ap.day, ap.close as Price
+                          FROM AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker
+                          WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry
+                                                           FROM Securities s
+                                                           WHERE s.ticker='KLAC') and ap.day<'2017-06-13') cSect
+               ON cSect.day=stats.LastDay)
+            GROUP BY stats.year, stats.month) industry on (stock.year=industry.year and stock.month=industry.month)
+      GROUP BY stock.year, stock.month) counts,
+(SELECT counts.year, MAX(counts.Difference) as max
+   FROM (SELECT stock.year, stock.month, stock.AvgRelChange-industry.AvgRelChange as Difference
+      FROM (SELECT stats.year, stats.month, 100*AVG(close.Price/open.Price) as AvgRelChange
+            FROM (((SELECT ap.ticker, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.day) as FirstDay,MAX(ap.day) as 
+                     LastDay
+               FROM AdjustedPrices ap
+               WHERE ap.ticker='KLAC' and ap.day<'2017-06-13'
+               GROUP BY year, month) stats 
+               LEFT JOIN (SELECT ap.ticker, ap.day, ap.Open as Price
+                          FROM AdjustedPrices ap
+                          WHERE ap.ticker='KLAC'  and ap.day<'2017-06-13'
+                          ) open
+               ON open.day=stats.FirstDay)
+               LEFT JOIN (SELECT ap.ticker, ap.day, ap.close as Price
+                          FROM AdjustedPrices ap 
+                          WHERE ap.ticker='KLAC' and ap.day<'2017-06-13') close
+               ON close.day=stats.LastDay)
+            GROUP BY stats.year, stats.month) stock
+            JOIN 
+            (SELECT stats.year, stats.month, 100*AVG(cSect.Price/oSect.Price) as AvgRelChange
+            FROM (((SELECT s.Sector, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.day) as FirstDay,MAX(ap.day) as 
+                     LastDay
+               FROM (AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker)
+               WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry
+                                  FROM Securities s
+                                  WHERE s.ticker='KLAC') and ap.day<'2017-06-13'
+               GROUP BY s.Sector,year, month) stats 
+               LEFT JOIN (SELECT ap.ticker, s.sector, ap.day, ap.Open as Price
+                          FROM AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker
+                          WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry
+                                             FROM Securities s
+                                             WHERE s.ticker='KLAC') and ap.day<'2017-06-13') oSect
+               ON oSect.day=stats.FirstDay)
+               LEFT JOIN (SELECT ap.ticker, s.sector, ap.day, ap.close as Price
+                          FROM AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker
+                          WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry
+                                                           FROM Securities s
+                                                           WHERE s.ticker='KLAC') and ap.day<'2017-06-13') cSect
+               ON cSect.day=stats.LastDay)
+            GROUP BY stats.year, stats.month) industry on (stock.year=industry.year and stock.month=industry.month)
+      GROUP BY stock.year, stock.month) counts
+GROUP BY counts.year) max
+where max.max=counts.Difference
+group by counts.year;
+---------------------------------------------------------------------------------------
+
+SELECT rel1.year, rel1.ticker, rel1.Relative, count(*) as Place
+FROM (SELECT tDays.year, tDays.ticker, 100*(ap2.Close/ap1.Open) as Relative
+   FROM (((SELECT YEAR(day) as year, ticker, min(day) as YearOpen, max(day) 
+               as YearClose
+      FROM AdjustedPrices p
+      GROUP BY year, ticker) tDays JOIN AdjustedPrices ap1 
+         on (tDays.YearOpen=ap1.day and tDays.ticker=ap1.ticker))
+      JOIN AdjustedPrices ap2 ON (tDays.ticker=ap2.ticker and 
+               tDays.YearClose=ap2.day))
+   GROUP BY year, ticker) rel1,
+   (SELECT tDays.year, tDays.ticker, 100*(ap2.Close/ap1.Open) as Relative
+   FROM (((SELECT YEAR(day) as year, ticker, min(day) as YearOpen, max(day) 
+            as YearClose
+      FROM AdjustedPrices p
+      GROUP BY year, ticker) tDays JOIN AdjustedPrices ap1 
+         on (tDays.YearOpen=ap1.day and tDays.ticker=ap1.ticker))
+      JOIN AdjustedPrices ap2 ON (tDays.ticker=ap2.ticker and 
+               tDays.YearClose=ap2.day))
+   GROUP BY year, ticker) rel2
+WHERE rel1.year=rel2.year and rel1.Relative<=rel2.Relative and rel1.year=2016
+GROUP BY rel1.year, rel1.ticker
+HAVING Place <= 5
+ORDER BY rel1.year, Place DESC;
+   
+
+SELECT stats.*, AVG(oSect.Price) as AvgOpen, AVG(cSect.Price) as AvgClose,
+      AVG(cSect.Price-oSect.Price) as AvgAbsChange,
+      100*AVG(cSect.Price/oSect.Price) as AvgRelChange
+FROM (((SELECT s.Sector, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.day) as FirstDay,MAX(ap.day) as 
+         LastDay, AVG(ap.Volume) as AvgVol, AVG(ap.low) as MonthlyLow, 
+         AVG(ap.high) as MonthlyHigh
+         FROM (AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker)
+         WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry
+                            FROM Securities s
+                            WHERE s.ticker='KLAC') and YEAR(ap.day)=2016
+         GROUP BY s.Sector,year, month) stats 
+LEFT JOIN (SELECT ap.ticker, s.sector, ap.day, ap.Open as Price
+           FROM AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker
+           WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry
+                              FROM Securities s
+                              WHERE s.ticker='KLAC') and YEAR(ap.day)=2016) oSect
+ON oSect.day=stats.FirstDay)
+LEFT JOIN (SELECT ap.ticker, s.sector, ap.day, ap.close as Price
+           FROM AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker
+           WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry
+                                            FROM Securities s
+                                            WHERE s.ticker='KLAC') and YEAR(ap.day)=2016) cSect
+   ON cSect.day=stats.LastDay)
+GROUP BY stats.year, stats.month;
+
+SELECT stats.*, AVG(open.Price) as AvgOpen, AVG(close.Price) as AvgClose,
+      AVG(close.Price-open.Price) as AvgAbsChange,
+      100*AVG(close.Price/open.Price) as AvgRelChange
+FROM (((SELECT ap.ticker, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.day) as FirstDay,MAX(ap.day) as 
+         LastDay, AVG(ap.Volume) as AvgVol, AVG(ap.low) as MonthlyLow, 
+         AVG(ap.high) as MonthlyHigh
+   FROM AdjustedPrices ap
+   WHERE ap.ticker='KLAC' and YEAR(ap.day)=2016
+   GROUP BY year, month) stats 
+   LEFT JOIN (SELECT ap.ticker, ap.day, ap.Open as Price
+              FROM AdjustedPrices ap
+              WHERE ap.ticker='KLAC' and YEAR(ap.day)=2016
+              ) open
+   ON open.day=stats.FirstDay)
+   LEFT JOIN (SELECT ap.ticker, ap.day, ap.close as Price
+              FROM AdjustedPrices ap 
+              WHERE ap.ticker='KLAC' and YEAR(ap.day)=2016) close
+   ON close.day=stats.LastDay)
+GROUP BY stats.year, stats.month;

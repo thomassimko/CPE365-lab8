@@ -20,25 +20,25 @@ public class Analyzer {
 			double d = diff - totaldiff;
 			
 			
-			if(r < -.3) {
+			if(r < -.1) {
 				report = "Tanking it.";
 			}
-			else if(ratio < -.2) {
+			else if(r < -.05) {
 				report = "Diminishing returns.";
 			}
-			else if (ratio < -.1) {
+			else if (r < 0) {
 				report = "Trying to hold on.";
 			}
-			else if (ratio < 0) {
+			else if (r < .05) {
 				report = "Showing resilience.";
 			}
-			else if (ratio < .1) {
+			else if (r < .1) {
 				report = "Slowly growing.";
 			}
-			else if (ratio < .2) {
+			else if (r < .15) {
 				report = "Doing quite well.";
 			}
-			else if (ratio < .3) {
+			else if (r < .2) {
 				report = "Rapid growth.";
 			}
 			else

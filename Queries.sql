@@ -215,7 +215,7 @@ WHERE p.ticker='KLAC' and YEAR(p.day)>= ALL(SELECT DISTINCT YEAR(p.day)
 GROUP BY Month
 ORDER BY Month(p.Day);
 
--- Individual 4
+-- Individual 5
 -- Determine the month of best performance for your stock for each of
 -- the years. Explain the criteria used to determine the month of best
 -- performance in your HTML text, and provide the results2
@@ -264,7 +264,52 @@ FROM (((SELECT ap.ticker, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.d
    ON close.day=stats.LastDay)
 GROUP BY stats.year, stats.month;
 
+SELECT sector.year, sector.month, stock.AvgRelChange as StockChange, sector.AvgRelChange as SectorChange,
+      stock.AvgRelChange-sector.AvgRelChange as Difference
+FROM (SELECT stats.year, stats.month, 100-100*AVG(close.Price/open.Price) as AvgRelChange
+      FROM (((SELECT ap.ticker, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.day) as FirstDay,MAX(ap.day) as 
+               LastDay
+         FROM AdjustedPrices ap
+         WHERE ap.ticker='KLAC' and ap.day<'2017-06-13'
+         GROUP BY year, month) stats 
+         LEFT JOIN (SELECT ap.ticker, ap.day, ap.Open as Price
+                    FROM AdjustedPrices ap
+                    WHERE ap.ticker='KLAC'  and ap.day<'2017-06-13'
+                    ) open
+         ON open.day=stats.FirstDay)
+         LEFT JOIN (SELECT ap.ticker, ap.day, ap.close as Price
+                    FROM AdjustedPrices ap 
+                    WHERE ap.ticker='KLAC' and ap.day<'2017-06-13') close
+         ON close.day=stats.LastDay)
+      GROUP BY stats.year, stats.month) stock JOIN
+      (SELECT stats.year, stats.month, 100-100*AVG(cSect.Price/oSect.Price) as AvgRelChange
+      FROM (((SELECT s.Sector, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.day) as FirstDay,MAX(ap.day) as 
+               LastDay
+         FROM (AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker)
+         WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry
+                            FROM Securities s
+                            WHERE s.ticker='KLAC') and ap.day<'2017-06-13'
+         GROUP BY s.Sector,year, month) stats 
+         LEFT JOIN (SELECT ap.ticker, s.sector, ap.day, ap.Open as Price
+                    FROM AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker
+                    WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry
+                                       FROM Securities s
+                                       WHERE s.ticker='KLAC') and ap.day<'2017-06-13') oSect
+         ON oSect.day=stats.FirstDay)
+         LEFT JOIN (SELECT ap.ticker, s.sector, ap.day, ap.close as Price
+                    FROM AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker
+                    WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry
+                                                     FROM Securities s
+                                                     WHERE s.ticker='KLAC') and ap.day<'2017-06-13') cSect
+         ON cSect.day=stats.LastDay)
+      GROUP BY stats.year, stats.month) sector on (sector.year=stock.year and sector.month=stock.month);
 
+
+
+
+
+-----------------------------------------------------------------------------------------------------------------
+-- Individual 4
 SELECT counts.*
 FROM (SELECT stock.year, stock.month, stock.AvgRelChange-industry.AvgRelChange as Difference
       FROM (SELECT stats.year, stats.month, 100*AVG(close.Price/open.Price) as AvgRelChange
@@ -351,7 +396,7 @@ GROUP BY counts.year) max
 where max.max=counts.Difference
 group by counts.year;
 ---------------------------------------------------------------------------------------
-
+-- Top 5 Performers in 2016
 SELECT rel1.year, rel1.ticker, rel1.Relative, count(*) as Place
 FROM (SELECT tDays.year, tDays.ticker, 100*(ap2.Close/ap1.Open) as Relative
    FROM (((SELECT YEAR(day) as year, ticker, min(day) as YearOpen, max(day) 
@@ -377,6 +422,7 @@ HAVING Place <= 5
 ORDER BY rel1.year, Place DESC;
    
 
+-- Performance of the sector of stock in 2016
 SELECT stats.*, AVG(oSect.Price) as AvgOpen, AVG(cSect.Price) as AvgClose,
       AVG(cSect.Price-oSect.Price) as AvgAbsChange,
       100*AVG(cSect.Price/oSect.Price) as AvgRelChange
@@ -402,6 +448,8 @@ LEFT JOIN (SELECT ap.ticker, s.sector, ap.day, ap.close as Price
    ON cSect.day=stats.LastDay)
 GROUP BY stats.year, stats.month;
 
+
+-- performance of stock in 2016
 SELECT stats.*, AVG(open.Price) as AvgOpen, AVG(close.Price) as AvgClose,
       AVG(close.Price-open.Price) as AvgAbsChange,
       100*AVG(close.Price/open.Price) as AvgRelChange

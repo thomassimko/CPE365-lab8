@@ -152,7 +152,7 @@ public class Driver {
 			t4.addRow(tuple);
 		}
 		html.addTable(t4.getTable());
-		html.addText("");
+		html.addText("compares the stocks relative performance to the sector and industry average relative performance to\n determine the best performance of the stock by month");
 
 		html.publishHtml();
 		

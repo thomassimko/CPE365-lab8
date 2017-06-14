@@ -2,7 +2,6 @@ import java.util.*;
 
 public class Analyzer {
 	
-	
 	public List<List<String>> gen5(List<HashMap<String, Object>> tuples) {
 		
 		String report = "";
@@ -51,5 +50,4 @@ public class Analyzer {
 		}
 		return ret;
 	}
-
 }

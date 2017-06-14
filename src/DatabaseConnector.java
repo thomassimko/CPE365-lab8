@@ -34,11 +34,20 @@ public class DatabaseConnector {
 	public void closeConnection() {
 		try {
             conn.close();
+            conn = null;
         }
         catch (Exception ex)
         {
             System.out.println("Unable to close connection");
         };
+	}
+	
+	public Connection getConnection() {
+		if (conn == null)
+		{
+			establishConnection();
+		}
+		return conn;
 	}
 	
 }

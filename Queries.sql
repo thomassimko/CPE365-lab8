@@ -102,13 +102,8 @@ ORDER BY year, Place;
 
 
 
-=======
--- Individual
-SELECT s.ticker, s.name, MIN(p.DAY), MAX(p.Day)
-=======
 -- Individual 1
 SELECT s.ticker, s.name, MIN(p.DAY) as FirstDay, MAX(p.Day) as LastDay
->>>>>>> 393eba34e768c0cf3f7edbb393cf8cfd5bfb319c
 FROM Securities s join Prices p on s.ticker=p.ticker
 WHERE s.ticker='KLAC';
 

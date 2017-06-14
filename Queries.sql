@@ -136,7 +136,7 @@ ORDER BY Month(p.Day);
 -- the years. Explain the criteria used to determine the month of best
 -- performance in your HTML text, and provide the results2
 
--- Monthly Sector Performance for specified ticker
+-- Monthly Sector Performance for specified ticker up to the date specified
 SELECT stats.*, AVG(oSect.Price) as AvgOpen, AVG(cSect.Price) as AvgClose,
       AVG(cSect.Price-oSect.Price) as AvgAbsChange,
       100*AVG(cSect.Price/oSect.Price) as AvgRelChange
@@ -144,25 +144,27 @@ FROM (((SELECT s.Sector, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.da
          LastDay, AVG(ap.Volume) as AvgVol, AVG(ap.low) as MonthlyLow, 
          AVG(ap.high) as MonthlyHigh
    FROM (AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker)
-   WHERE s.Sector IN (SELECT s.Sector
+   WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry
                       FROM Securities s
-                      WHERE s.ticker='KLAC')
+                      WHERE s.ticker='KLAC') and ap.day<'2017-06-13'
    GROUP BY s.Sector,year, month) stats 
    LEFT JOIN (SELECT ap.ticker, s.sector, ap.day, ap.Open as Price
               FROM AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker
-              WHERE s.Sector IN (SELECT s.Sector
+              WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry
                                  FROM Securities s
-                                 WHERE s.ticker='KLAC')) oSect
+                                 WHERE s.ticker='KLAC') and ap.day<'2017-06-13') oSect
    ON oSect.day=stats.FirstDay)
    LEFT JOIN (SELECT ap.ticker, s.sector, ap.day, ap.close as Price
               FROM AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker
-              WHERE s.Sector IN (SELECT s.Sector
-                                 FROM Securities s
-                                 WHERE s.ticker='KLAC')) cSect
+              WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry
+                                               FROM Securities s
+                                               WHERE s.ticker='KLAC') and ap.day<'2017-06-13') cSect
    ON cSect.day=stats.LastDay)
 GROUP BY stats.year, stats.month;
 
--- Monthly 
+-- Monthly Perfomance of specified ticker matching schema of above result
+-- comparisons for determining best performance will be done in Java as they 
+-- will be more efficient.
 
 SELECT stats.*, AVG(open.Price) as AvgOpen, AVG(close.Price) as AvgClose,
       AVG(close.Price-open.Price) as AvgAbsChange,
@@ -171,16 +173,16 @@ FROM (((SELECT ap.ticker, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.d
          LastDay, AVG(ap.Volume) as AvgVol, AVG(ap.low) as MonthlyLow, 
          AVG(ap.high) as MonthlyHigh
    FROM AdjustedPrices ap
-   WHERE ap.ticker='KLAC'
+   WHERE ap.ticker='KLAC' and ap.day<'2017-06-13'
    GROUP BY year, month) stats 
    LEFT JOIN (SELECT ap.ticker, ap.day, ap.Open as Price
               FROM AdjustedPrices ap
-              WHERE ap.ticker='KLAC'
+              WHERE ap.ticker='KLAC'  and ap.day<'2017-06-13'
               ) open
    ON open.day=stats.FirstDay)
    LEFT JOIN (SELECT ap.ticker, ap.day, ap.close as Price
               FROM AdjustedPrices ap 
-              WHERE ap.ticker='KLAC') close
+              WHERE ap.ticker='KLAC' and ap.day<'2017-06-13') close
    ON close.day=stats.LastDay)
 GROUP BY stats.year, stats.month;
 

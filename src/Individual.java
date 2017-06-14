@@ -28,26 +28,54 @@ public class Individual {
 			"FROM AdjustedPrices p WHERE p.ticker=?) " + 
 			"GROUP BY Month ORDER BY Month(p.Day)";
 	
-	private String q4 = "SELECT stats.*, AVG(oSect.Price) as AvgOpen, AVG(cSect.Price) as AvgClose, " +
-			"AVG(cSect.Price-oSect.Price) as AvgAbsChange, " +
-			"100*AVG(cSect.Price/oSect.Price) as AvgRelChange " +
-			"FROM (((SELECT s.Sector, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.day) as FirstDay,MAX(ap.day) as  " +
-			"LastDay, AVG(ap.Volume) as AvgVol, AVG(ap.low) as MonthlyLow,  " +
-		    "AVG(ap.high) as MonthlyHigh " +
-		    "FROM (AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker) " +
-		    "WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry " +
-		    "FROM Securities s WHERE s.ticker=?)" +
-		    "GROUP BY s.Sector,year, month) stats  " +
-		    "LEFT JOIN (SELECT ap.ticker, s.sector, ap.day, ap.Open as Price " +
-		    "FROM AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker " +
-		    "WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry " +
-		    "FROM Securities s WHERE s.ticker=?)) oSect " +
-		    "ON oSect.day=stats.FirstDay) LEFT JOIN (SELECT ap.ticker, s.sector, ap.day, ap.close as Price " +
-		    "FROM AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker " +
-		    "WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry " +
-		    "FROM Securities s WHERE s.ticker=?)) cSect " +
-		    "ON cSect.day=stats.LastDay) " +
-		    "GROUP BY stats.year, stats.month";
+	private String q4 = "SELECT counts.* FROM (SELECT stock.year, stock.month, " +
+	"stock.AvgRelChange-industry.AvgRelChange as Difference " +
+    "FROM (SELECT stats.year, stats.month, 100*AVG(close.Price/open.Price) as AvgRelChange " +
+    "FROM (((SELECT ap.ticker, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.day) " +
+    "as FirstDay,MAX(ap.day) as LastDay FROM AdjustedPrices ap WHERE ap.ticker=? " +
+    "GROUP BY year, month) stats LEFT JOIN (SELECT ap.ticker, ap.day, ap.Open as Price " +
+    "FROM AdjustedPrices ap WHERE ap.ticker=? ) open ON open.day=stats.FirstDay) " +
+    "LEFT JOIN (SELECT ap.ticker, ap.day, ap.close as Price FROM AdjustedPrices ap " +
+    "WHERE ap.ticker=?) close ON close.day=stats.LastDay) GROUP BY stats.year, stats.month) stock " +
+    "JOIN (SELECT stats.year, stats.month, 100*AVG(cSect.Price/oSect.Price) as AvgRelChange " +
+    "FROM (((SELECT s.Sector, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.day) " +
+    "as FirstDay,MAX(ap.day) as LastDay FROM (AdjustedPrices ap JOIN Securities s " +
+    "on s.ticker=ap.ticker) WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry " +
+    "FROM Securities s WHERE s.ticker=?) GROUP BY s.Sector,year, month) stats " +
+    "LEFT JOIN (SELECT ap.ticker, s.sector, ap.day, ap.Open as Price FROM AdjustedPrices ap " +
+    "JOIN Securities s on s.ticker=ap.ticker WHERE (s.Sector, s.Industry) = " +
+    "(SELECT s.Sector, s.Industry FROM Securities s WHERE s.ticker=?)) oSect " +
+    "ON oSect.day=stats.FirstDay) LEFT JOIN (SELECT ap.ticker, s.sector, ap.day, ap.close as Price " +
+    "FROM AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker " +
+    "WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry FROM Securities s " +
+    "WHERE s.ticker=?) ) cSect ON cSect.day=stats.LastDay) " +
+    "GROUP BY stats.year, stats.month) industry on (stock.year=industry.year and " +
+    "stock.month=industry.month) GROUP BY stock.year, stock.month) counts, " +
+    "(SELECT counts.year, MAX(counts.Difference) as max FROM " +
+    "(SELECT stock.year, stock.month, stock.AvgRelChange-industry.AvgRelChange as Difference " +
+    "FROM (SELECT stats.year, stats.month, 100*AVG(close.Price/open.Price) as AvgRelChange " +
+    "FROM (((SELECT ap.ticker, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.day) as " +
+    "FirstDay,MAX(ap.day) as LastDay FROM AdjustedPrices ap WHERE ap.ticker=? " +
+    "GROUP BY year, month) stats  LEFT JOIN (SELECT ap.ticker, ap.day, ap.Open as Price " +
+    "FROM AdjustedPrices ap WHERE ap.ticker=? ) open ON open.day=stats.FirstDay) " +
+    "LEFT JOIN (SELECT ap.ticker, ap.day, ap.close as Price FROM AdjustedPrices ap " +
+    "WHERE ap.ticker=?) close ON close.day=stats.LastDay) GROUP BY " +
+    "stats.year, stats.month) stock JOIN  (SELECT stats.year, stats.month, " +
+    "100*AVG(cSect.Price/oSect.Price) as AvgRelChange FROM (((SELECT s.Sector, Year(ap.day) as " +
+    "year, Month(ap.day) as month, MIN(ap.day) as FirstDay,MAX(ap.day) as  LastDay " +
+    "FROM (AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker) WHERE (s.Sector, s.Industry) " +
+    "= (SELECT s.Sector, s.Industry FROM Securities s WHERE s.ticker=?) " +
+    "GROUP BY s.Sector,year, month) stats  LEFT JOIN (SELECT ap.ticker, s.sector, ap.day, " +
+    "ap.Open as Price FROM AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker " +
+    "WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry " +
+    "FROM Securities s WHERE s.ticker=?)) oSect ON oSect.day=stats.FirstDay) " +
+    "LEFT JOIN (SELECT ap.ticker, s.sector, ap.day, ap.close as Price " +
+    "FROM AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker " +
+    "WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry FROM Securities s " +
+    "WHERE s.ticker=?) ) cSect ON cSect.day=stats.LastDay) " +
+    "GROUP BY stats.year, stats.month) industry on (stock.year=industry.year and stock.month=industry.month) " +
+    "GROUP BY stock.year, stock.month) counts GROUP BY counts.year) max " +
+	"where max.max=counts.Difference group by counts.year;";
 	
 	private String q5 = "SELECT stats.*, AVG(open.Price) as AvgOpen, AVG(close.Price) as AvgClose, " +
 			"AVG(close.Price-open.Price) as AvgAbsChange, " +
@@ -138,6 +166,15 @@ public class Individual {
 			ps.setString(1, ticker);
 			ps.setString(2, ticker);
 			ps.setString(3, ticker);
+			ps.setString(4, ticker);
+			ps.setString(5, ticker);
+			ps.setString(6, ticker);
+			ps.setString(7, ticker);
+			ps.setString(8, ticker);
+			ps.setString(9, ticker);
+			ps.setString(10, ticker);
+			ps.setString(11, ticker);
+			ps.setString(12, ticker);
 			r4 = ps.executeQuery();
 			//dc.closeConnection();
 		} catch (Exception ex) {

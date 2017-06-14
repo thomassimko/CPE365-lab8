@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import java.util.*;
 
 public class Analyzer {
@@ -49,5 +50,15 @@ public class Analyzer {
 			ret.add(newList);
 		}
 		return ret;
+=======
+import java.sql.ResultSet;
+
+
+public class Analyzer {
+	private ResultSet theIndustry;
+	private ResultSet theStock;
+	public Analyzer() {
+		
+>>>>>>> 325c2a5510c370c64fc874f8a62e0ff8797f5464
 	}
 }

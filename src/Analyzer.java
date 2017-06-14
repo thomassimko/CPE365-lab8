@@ -31,13 +31,13 @@ public class Analyzer {
 			else if (r < .05) {
 				report = "Showing resilience.";
 			}
-			else if (r < .1) {
+			else if (r < .08) {
 				report = "Slowly growing.";
 			}
-			else if (r < .15) {
+			else if (r < .12) {
 				report = "Doing quite well.";
 			}
-			else if (r < .2) {
+			else if (r < .15) {
 				report = "Rapid growth.";
 			}
 			else

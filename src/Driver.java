@@ -97,7 +97,7 @@ public class Driver {
 			g5.addRow(tuple);
 		}
 		html.addTable(g5.getTable());
-		html.addText("");
+		html.addText("Reports are calculated based on the sector's relative growth in comparison to the market's relative growth.");
 
 
 

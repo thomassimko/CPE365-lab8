@@ -25,29 +25,29 @@ FROM
 
 -- General Q2
 
-SELECT t1.ticker, t1.s as volumeTraded
+SELECT t1.ticker, t1.volumeTraded
 FROM
-   (SELECT Ticker, SUM(p.volume) as s
+   (SELECT Ticker, SUM(p.volume) as volumeTraded
    FROM Prices p
    WHERE YEAR(p.day) = 2016
    GROUP BY Ticker
    ORDER BY s DESC) t1,
 
-   (SELECT Ticker, SUM(p.volume) as s
+   (SELECT Ticker, SUM(p.volume) as volumeTraded
    FROM Prices p
    WHERE YEAR(p.day) = 2016
    GROUP BY Ticker) t2
-WHERE t1.s <= t2.s
-GROUP BY t1.ticker, t1.s
+WHERE t1.volumeTraded <= t2.volumeTraded
+GROUP BY t1.ticker, t1.volumeTraded
 HAVING count(*) <= 10
 ORDER BY volumeTraded DESC;
 
 
 -- General Q3
 
-SELECT absYears.Year, absYears.Place, absYears.ticker as Absolute, 
-         relYears.ticker as Relative
-FROM (SELECT abs1.year, abs1.ticker, abs1.Absolute, count(*) as Place
+SELECT absYears.Year, absYears.Place, absYears.AbsoluteTicker,
+         relYears.RelativeTicker
+FROM (SELECT abs1.year, abs1.ticker as AbsoluteTicker, abs1.Absolute, count(*) as Place
    FROM (SELECT tDays.year, tDays.ticker, ap2.Close-ap1.Open as Absolute
       FROM (((SELECT YEAR(day) as year, ticker, min(day) as YearOpen, 
             max(day) as YearClose
@@ -72,7 +72,7 @@ FROM (SELECT abs1.year, abs1.ticker, abs1.Absolute, count(*) as Place
    ORDER BY abs1.year, abs1.Absolute, Place DESC
    ) absYears
 JOIN
-   (SELECT rel1.year, rel1.ticker, rel1.Relative, count(*) as Place
+   (SELECT rel1.year, rel1.ticker as RelativeTicker, rel1.Relative, count(*) as Place
    FROM (SELECT tDays.year, tDays.ticker, 100*(ap2.Close/ap1.Open) as Relative
       FROM (((SELECT YEAR(day) as year, ticker, min(day) as YearOpen, max(day) 
                   as YearClose
@@ -153,6 +153,33 @@ HAVING count(*) <= 10
 ORDER BY r1.relativeGrowth DESC;
 
 
+-- General 5
+
+SELECT Sector, Difference, Ratio, totalratio, totaldiff
+FROM
+   (SELECT s.Sector, AVG(z.diff) as Difference, AVG(z.ratio) as Ratio
+   FROM
+      Securities s,
+      (SELECT t.ticker, p2.close / p1.open as ratio, p2.close - p1.open as diff
+      FROM AdjustedPrices p1, AdjustedPrices p2,
+         (SELECT ticker, min(day) as start, max(day) as end
+         FROM AdjustedPrices p
+         WHERE YEAR(day) = 2016
+         GROUP BY ticker) t
+      WHERE t.ticker = p1.ticker and t.ticker = p2.ticker and p1.day = t.start and
+         p2.day = t.end) z
+   WHERE s.ticker = z.ticker and s.sector != 'Telecommunications Services'
+   GROUP BY s.Sector) s,
+
+   (SELECT AVG(p2.close / p1.open) as totalratio, AVG(p2.close - p1.open) as totaldiff
+   FROM AdjustedPrices p1, AdjustedPrices p2,
+      (SELECT ticker, min(day) as start, max(day) as end
+      FROM AdjustedPrices p
+      WHERE YEAR(day) = 2016
+      GROUP BY ticker) t
+   WHERE t.ticker = p1.ticker and t.ticker = p2.ticker and p1.day = t.start and
+      p2.day = t.end) t
+;
 
 
 

@@ -7,5 +7,7 @@ public class Driver {
 		
 		Credentials cred = new Credentials();
 		DatabaseConnector dc = new DatabaseConnector(cred.getLogin(), cred.getPass(), cred.getDB());
+		
+		Individual ind = new Individual(dc, "KLAC");
 	}
 }

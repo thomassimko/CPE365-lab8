@@ -1,4 +1,7 @@
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class DatabaseConnector {
 
@@ -20,7 +23,7 @@ public class DatabaseConnector {
 			System.out.println("Error fetching driver");
 			ex.printStackTrace();
 		};
-
+	
 		try {
 			conn = DriverManager.getConnection(url);
 		} catch (Exception ex) {
@@ -49,5 +52,28 @@ public class DatabaseConnector {
 		}
 		return conn;
 	}
+	
+	public static List<HashMap<String, Object>> queryDatabase(ResultSet rs)
+	{
+		List<HashMap<String,Object>> result = new ArrayList<HashMap<String,Object>>();
+
+		try {
+			ResultSetMetaData md = (ResultSetMetaData) rs.getMetaData();
+			int col = md.getColumnCount();
+	
+			while (rs.next()) {
+				HashMap<String, Object> row = new HashMap<String, Object>(col);
+				for(int i = 1; i <= col; ++i) {
+					row.put(md.getColumnName(i), rs.getObject(i));
+				}
+				result.add(row);
+			}
+	
+			rs.close();
+		} catch (Exception ex){
+			ex.printStackTrace();
+		}
+		return result;
+}
 	
 }

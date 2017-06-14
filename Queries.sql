@@ -469,3 +469,93 @@ FROM (((SELECT ap.ticker, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.d
               WHERE ap.ticker='KLAC' and YEAR(ap.day)=2016) close
    ON close.day=stats.LastDay)
 GROUP BY stats.year, stats.month;
+
+
+
+
+-- Individual 7
+
+SELECT month, mainTicker, topFive, PriceDifference, VolumeDifference
+FROM (
+SELECT MONTHNAME(p1.day) as month, p1.ticker as mainTicker, p2.ticker as topFive, p1.close - p2.close as PriceDifference, v1.vTotal - v2.vtotal as VolumeDifference
+FROM
+   AdjustedPrices p1, AdjustedPrices p2,
+
+   (SELECT max(day) as start
+   FROM AdjustedPrices p
+   WHERE YEAR(p.day) = 2016
+   GROUP BY MONTH(p.day)) day,
+
+   (SELECT MONTH(p.day) as mon, p.ticker, SUM(volume) as vTotal
+   FROM AdjustedPrices p
+   WHERE YEAR(p.day) = 2016
+   GROUP BY MONTHNAME(p.day), p.ticker) v1,
+
+   (SELECT MONTH(p.day) as mon, p.ticker, SUM(volume) as vTotal
+   FROM AdjustedPrices p
+   WHERE YEAR(p.day) = 2016
+   GROUP BY MONTHNAME(p.day), p.ticker) v2,
+
+   (SELECT rel1.ticker
+   FROM (SELECT tDays.year, tDays.ticker, 100*(ap2.Close/ap1.Open) as Relative
+   FROM (((SELECT YEAR(day) as year, ticker, min(day) as YearOpen, max(day)
+            as YearClose FROM AdjustedPrices p
+   GROUP BY year, ticker) tDays JOIN AdjustedPrices ap1
+   on (tDays.YearOpen=ap1.day and tDays.ticker=ap1.ticker))
+   JOIN AdjustedPrices ap2 ON (tDays.ticker=ap2.ticker and
+   tDays.YearClose=ap2.day))
+   GROUP BY year, ticker) rel1,
+   (SELECT tDays.year, tDays.ticker, 100*(ap2.Close/ap1.Open) as Relative
+   FROM (((SELECT YEAR(day) as year, ticker, min(day) as YearOpen, max(day)
+   as YearClose
+   FROM AdjustedPrices p
+   GROUP BY year, ticker) tDays JOIN AdjustedPrices ap1
+   on (tDays.YearOpen=ap1.day and tDays.ticker=ap1.ticker))
+   JOIN AdjustedPrices ap2 ON (tDays.ticker=ap2.ticker and
+   tDays.YearClose=ap2.day))
+   GROUP BY year, ticker) rel2
+   WHERE rel1.year=rel2.year and rel1.Relative<=rel2.Relative and rel1.year=2016
+   GROUP BY rel1.year, rel1.ticker
+   HAVING count(*) <= 5) top
+
+WHERE p1.ticker = 'KLAC' and YEAR(p1.day) = 2016 and p2.ticker = top.ticker and
+   YEAR(p2.day) = 2016 and p1.day = p2.day and p1.day = day.start and MONTH(p1.day) = v1.mon and v1.mon = v2.mon and v1.ticker = p1.ticker and v2.ticker = p2.ticker
+ORDER BY p1.day, p2.ticker) f;
+
+
+-- Individual 8
+
+SELECT p1.ticker as main, p2.ticker as other, p3.close / p1.open as mainRelativeGrowth, p4.close / p2.open as otherRelativeGrowth,
+   v1.vTotal as mainVolumeTraded, v2.vTotal as otherVolumeTraded
+FROM AdjustedPrices p1, AdjustedPrices p2, AdjustedPrices p3, AdjustedPrices p4,
+   (SELECT p1.ticker as t1, p2.ticker as t2, IF (MAX(p1.day) < MAX(p2.day), MAX(p1.day), MAX(p2.day)) as max
+   FROM AdjustedPrices p1, AdjustedPrices p2
+   WHERE p1.ticker = 'KLAC' and p2.ticker = 'DISCK') endDate,
+
+   (SELECT MIN(p1.day) as start
+   FROM AdjustedPrices p1,
+      (SELECT p1.ticker as t1, p2.ticker as t2, IF (MAX(p1.day) < MAX(p2.day), MAX(p1.day), MAX(p2.day)) as max
+      FROM AdjustedPrices p1, AdjustedPrices p2
+      WHERE p1.ticker = 'KLAC' and p2.ticker = 'DISCK') c
+   WHERE p1.ticker = c.t1 and YEAR(p1.day) = YEAR(c.max)) startDate,
+
+   (SELECT p.ticker, SUM(volume) vTotal
+   FROM AdjustedPrices p
+   WHERE YEAR(p.day) = 2016
+   GROUP BY p.ticker) v1,
+
+   (SELECT p.ticker, SUM(volume) vTotal
+   FROM AdjustedPrices p
+   WHERE YEAR(p.day) = 2016
+   GROUP BY p.ticker) v2
+
+
+WHERE p1.ticker = p3.ticker and p2.ticker = p4.ticker and p1.ticker = endDate.t1 and p2.ticker = endDate.t2 and p1.day = endDate.max and p2.day = endDate.max and p3.day = p4.day and p3.day = startDate.start and
+   v1.ticker = p1.ticker and v2.ticker = p2.ticker;
+
+
+
+
+
+
+

@@ -1,5 +1,7 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 
@@ -16,8 +18,13 @@ public class Driver {
 		Credentials cred = new Credentials();
 		DatabaseConnector dc = new DatabaseConnector(cred.getLogin(), cred.getPass(), cred.getDB());
 
-
-		Individual ind = new Individual(dc, ticker);
+		String ticker2;
+		if (ticker.equals("KLAC")) {
+			ticker2 = "DISCK";
+		}
+		else
+			ticker2 = "KLAC";
+		Individual ind = new Individual(dc, ticker, ticker2);
 		General gen = new General(dc);
 		HtmlWriter html = new HtmlWriter(args[0], "KLAC Analysis");
 		
@@ -154,6 +161,38 @@ public class Driver {
 		html.addTable(t4.getTable());
 		html.addText("compares the stocks relative performance to the sector and industry average relative performance to\n determine the best performance of the stock by month");
 
+		
+		
+		
+		//Query 7
+		
+		html.addHeading("7. " + ticker + " vs. Top Five of 2016");
+		Table t7 = new Table();
+		List<String> t7Columns = dc.getColumnNames(ind.getR7());
+		t7.addColumns(t7Columns);
+		List<List<String>> rs7 = dc.tuplesToList(dc.resultSetToTuples(ind.getR7()), t7Columns);
+		for (List<String> tuple : rs7) {
+			t7.addRow(tuple);
+		}
+		html.addTable(t7.getTable());
+		html.addText("The top 5 are calculated based on relative growth in 2016. Values are calculated as {" + ticker + "} - {topFive}.");
+		
+		
+		//Query 8
+		
+		html.addHeading("8. " + ticker + " vs. " +  ticker2);
+		Table t8 = new Table();
+		List<String> t8Columns = dc.getColumnNames(ind.getR8());
+		t8.addColumns(t8Columns);
+		List<HashMap<String, Object>> r8 = dc.resultSetToTuples(ind.getR8());
+		List<List<String>> rs8 = dc.tuplesToList(r8, t8Columns);
+		for (List<String> tuple : rs8) {
+			t8.addRow(tuple);
+		}
+		html.addTable(t8.getTable());
+		html.addText(anal.indiv8(r8, ticker, ticker2));
+		
+		
 		html.publishHtml();
 		
 	}

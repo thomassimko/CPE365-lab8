@@ -50,4 +50,36 @@ public class Analyzer {
 		}
 		return ret;
 	}
+	
+	public String indiv8(List<HashMap<String, Object>> tuples, String ticker1, String ticker2) {
+		HashMap<String, Object> tuple = tuples.get(0);
+		
+		StringBuilder output = new StringBuilder();
+		
+		if ((double) tuple.get("mainRelativeGrowth") > (double) tuple.get("otherRelativeGrowth"))
+		{
+			output.append(ticker1 + " is performing better than " + ticker2 + " according to relative price growth.  ");
+		}
+		else if ((double) tuple.get("mainRelativeGrowth") < (double) tuple.get("otherRelativeGrowth"))
+		{
+			output.append(ticker2 + " is performing better than " + ticker1 + " according to relative price growth.  ");
+		}
+		else {
+			output.append("The two stocks have the same relative price growth.  ");
+		}
+		
+		if ((double) tuple.get("mainVolumeTraded") > (double) tuple.get("otherVolumeTraded"))
+		{
+			output.append(ticker1 + " has sold better than " + ticker2 + " over the year.");
+		}
+		else if ((double) tuple.get("mainVolumeTraded") < (double) tuple.get("otherVolumeTraded"))
+		{
+			output.append(ticker2 + " has sold better than " + ticker1 + " over the year.");
+		}
+		else {
+			output.append("The two stocks have the same volume traded.");
+		}
+		
+		return output.toString();
+	}
 }

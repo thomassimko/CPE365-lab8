@@ -108,21 +108,20 @@ public class Driver {
 			t4.addRow(tuple);
 		}
 		html.addTable(t4.getTable());
-		html.addText("");
+		html.addText("compares the stocks relative performance to the sector and industry average relative performance to\n determine the best performance of the stock by month");
 		
-		html.publishHtml();
-		
-		Table t4 = new Table();
-		t4.addColumns(dc.getColumnNames(ind.getR4()));
-		List<List<String>> rs4 = dc.tuplesToList(dc.resultSetToTuples(ind.getR4()));
-		for (List<String> tuple : rs4) {
-			t4.addRow(tuple);
-		}
-		html.addTable(t4.getTable());
-		
-		
-		
-		
+		//Query 5
+//		html.addHeading("5. " + ticker + " Best Month Per Year");
+//		Table t5 = new Table();
+//		List<String> t5Columns = dc.getColumnNames(ind.getR5());
+//		t4.addColumns(t5Columns);
+//		List<List<String>> rs5 = dc.tuplesToList(dc.resultSetToTuples(ind.getR5()), t5Columns);
+//		for (List<String> tuple : rs5) {
+//			t5.addRow(tuple);
+//		}
+//		html.addTable(t5.getTable());
+//		html.addText("compares the stocks relative performance to the sector and industry average relative performance to\n determine the best performance of the stock by month");
+//		
 		html.publishHtml();
 		
 	}

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>KLAC Analysis</title>
+
+<style>
+table, th, td {
+border: 1px solid black;
+border-collapse: collapse;
+}
+</style>
+</head>
+<body>
+<h1>General</h1>
+<h3>1. 2016 Security Trading Breakdown</h3>
+<table style="width:100%">
+		<th>Start</th>
+		<th>End</th>
+		<th>PriceInc</th>
+		<th>PriceDec</th>
+	</tr>
+
+		<td>499</td>
+		<td>501</td>
+		<td>366</td>
+		<td>133</td>
+	</tr>
+
+</table>
+<p>Reports the total number of securities traded at the start of 2016, total number of securities traded at the end of 2016, total number of securities whose prices saw increase between the end of 2015 and the end of 2016, and the total number of securities whose prices saw decrease between the end of 2015 and the end of 2016.</p>
+<h3>2. 10 Most Traded Stocks of 2016</h3>
+<table style="width:100%">
+		<th>Ticker</th>
+		<th>s</th>
+	</tr>
+
+		<td>BAC</td>
+		<td>2.7284084188E10</td>
+	</tr>
+
+		<td>CHK</td>
+		<td>1.1649612972E10</td>
+	</tr>
+
+		<td>FCX</td>
+		<td>1.0468708684E10</td>
+	</tr>
+
+		<td>AAPL</td>
+		<td>9.680671304E9</td>
+	</tr>
+
+		<td>F</td>
+		<td>8.995790212E9</td>
+	</tr>
+
+		<td>GE</td>
+		<td>8.951903096E9</td>
+	</tr>
+
+		<td>PFE</td>
+		<td>7.844190396E9</td>
+	</tr>
+
+		<td>MSFT</td>
+		<td>7.817583096E9</td>
+	</tr>
+
+		<td>MU</td>
+		<td>6.794127E9</td>
+	</tr>
+
+		<td>FB</td>
+		<td>6.414356992E9</td>
+	</tr>
+
+</table>
+<p></p>
+<h1>Individual</h1>
+<h3>1. KLAC Pricing Date Range</h3>
+<table style="width:100%">
+		<th>Ticker</th>
+		<th>Name</th>
+		<th>FirstDay</th>
+		<th>LastDay</th>
+	</tr>
+
+		<td>KLAC</td>
+		<td>KLA-Tencor Corp.</td>
+		<td>2010-01-04</td>
+		<td>2016-12-30</td>
+	</tr>
+
+</table>
+<p>For the given ticker, displays the name of the ticker and the first day of sales and last day of sales in the database.</p>
+<h3>2. KLAC Stock Performance Per Year</h3>
+<table style="width:100%">
+		<th>year</th>
+		<th>ticker</th>
+		<th>Name</th>
+		<th>PriceChange</th>
+		<th>TotalVolume</th>
+		<th>AvgClose</th>
+		<th>AvgVol</th>
+	</tr>
+
+		<td>2010</td>
+		<td>KLAC</td>
+		<td>KLA-Tencor Corp.</td>
+		<td>2.0400009155273438</td>
+		<td>9.345511E8</td>
+		<td>32.549007922884016</td>
+		<td>3708536.111111111</td>
+	</tr>
+
+		<td>2011</td>
+		<td>KLAC</td>
+		<td>KLA-Tencor Corp.</td>
+		<td>9.669998168945312</td>
+		<td>7.434043E8</td>
+		<td>42.79932539803641</td>
+		<td>2950017.0634920634</td>
+	</tr>
+
+		<td>2012</td>
+		<td>KLAC</td>
+		<td>KLA-Tencor Corp.</td>
+		<td>-0.9600028991699219</td>
+		<td>5.98048E8</td>
+		<td>49.138120056152346</td>
+		<td>2392192.0</td>
+	</tr>
+
+		<td>2013</td>
+		<td>KLAC</td>
+		<td>KLA-Tencor Corp.</td>
+		<td>15.64999771118164</td>
+		<td>4.274748E8</td>
+		<td>57.44940467107864</td>
+		<td>1696328.5714285714</td>
+	</tr>
+
+		<td>2014</td>
+		<td>KLAC</td>
+		<td>KLA-Tencor Corp.</td>
+		<td>6.319999694824219</td>
+		<td>3.983763E8</td>
+		<td>70.16579360053653</td>
+		<td>1580858.3333333333</td>
+	</tr>
+
+		<td>2015</td>
+		<td>KLAC</td>
+		<td>KLA-Tencor Corp.</td>
+		<td>-1.2700042724609375</td>
+		<td>4.244933E8</td>
+		<td>59.40591286856031</td>
+		<td>1684497.2222222222</td>
+	</tr>
+
+		<td>2016</td>
+		<td>KLAC</td>
+		<td>KLA-Tencor Corp.</td>
+		<td>10.650001525878906</td>
+		<td>3.993122E8</td>
+		<td>71.86420626867385</td>
+		<td>1584572.2222222222</td>
+	</tr>
+
+</table>
+<p>Reports the increase/decrease in prices year-over-year, volume of trading, average closing price in a given year, average trade volume per day.</p>
+<h3>3. KLAC 2016 Monthly Breakdown</h3>
+<table style="width:100%">
+		<th>Month</th>
+		<th>Ticker</th>
+		<th>AvgClose</th>
+		<th>MonthlyHigh</th>
+		<th>MonthlyLow</th>
+		<th>AvgVol</th>
+	</tr>
+
+		<td>January</td>
+		<td>KLAC</td>
+		<td>65.69473668148643</td>
+		<td>69.18</td>
+		<td>63.64</td>
+		<td>1588189.4736842106</td>
+	</tr>
+
+		<td>February</td>
+		<td>KLAC</td>
+		<td>65.6769998550415</td>
+		<td>68.42</td>
+		<td>62.33</td>
+		<td>2346200.0</td>
+	</tr>
+
+		<td>March</td>
+		<td>KLAC</td>
+		<td>70.06727253306995</td>
+		<td>73.19</td>
+		<td>67.71</td>
+		<td>1183472.7272727273</td>
+	</tr>
+
+		<td>April</td>
+		<td>KLAC</td>
+		<td>72.21714310418992</td>
+		<td>73.59</td>
+		<td>69.54</td>
+		<td>920914.2857142857</td>
+	</tr>
+
+		<td>May</td>
+		<td>KLAC</td>
+		<td>69.77714175269718</td>
+		<td>73.14</td>
+		<td>67.32</td>
+		<td>870957.1428571428</td>
+	</tr>
+
+		<td>June</td>
+		<td>KLAC</td>
+		<td>73.00590896606445</td>
+		<td>75.17</td>
+		<td>70.98</td>
+		<td>1119504.5454545454</td>
+	</tr>
+
+		<td>July</td>
+		<td>KLAC</td>
+		<td>75.12349891662598</td>
+		<td>77.85</td>
+		<td>71.51</td>
+		<td>948715.0</td>
+	</tr>
+
+		<td>August</td>
+		<td>KLAC</td>
+		<td>71.23347871199898</td>
+		<td>77.63</td>
+		<td>66.88</td>
+		<td>1649434.7826086956</td>
+	</tr>
+
+		<td>September</td>
+		<td>KLAC</td>
+		<td>69.81095268612816</td>
+		<td>71.16</td>
+		<td>68.43</td>
+		<td>1388309.5238095238</td>
+	</tr>
+
+		<td>October</td>
+		<td>KLAC</td>
+		<td>72.79095241001674</td>
+		<td>75.5</td>
+		<td>69.75</td>
+		<td>3492823.8095238097</td>
+	</tr>
+
+		<td>November</td>
+		<td>KLAC</td>
+		<td>77.92904772077289</td>
+		<td>83.23</td>
+		<td>73.3</td>
+		<td>1791280.9523809524</td>
+	</tr>
+
+		<td>December</td>
+		<td>KLAC</td>
+		<td>78.40761965797061</td>
+		<td>81.69</td>
+		<td>74.66</td>
+		<td>1756466.6666666667</td>
+	</tr>
+
+</table>
+<p>Reports the average closing price, the highest and the lowest price, the average daily trading volume by month.</p>
+<h3>4. KLAC Best Month Per Year</h3>
+<table style="width:100%">
+		<th>year</th>
+		<th>month</th>
+	</tr>
+
+		<td>2010</td>
+		<td>December</td>
+	</tr>
+
+		<td>2011</td>
+		<td>October</td>
+	</tr>
+
+		<td>2012</td>
+		<td>January</td>
+	</tr>
+
+		<td>2013</td>
+		<td>January</td>
+	</tr>
+
+		<td>2014</td>
+		<td>November</td>
+	</tr>
+
+		<td>2015</td>
+		<td>November</td>
+	</tr>
+
+		<td>2016</td>
+		<td>February</td>
+	</tr>
+
+</table>
+<p>compares the stocks relative performance to the sector and industry average relative performance to
+ determine the best performance of the stock by month</p>
+</body>
+</html>

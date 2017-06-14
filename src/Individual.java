@@ -28,17 +28,17 @@ public class Individual {
 			"FROM AdjustedPrices p WHERE p.ticker=?) " + 
 			"GROUP BY Month ORDER BY Month(p.Day)";
 	
-	private String q4 = "SELECT counts.* FROM (SELECT stock.year, stock.month, " +
+	private String q4 = "SELECT counts.year, counts.month FROM (SELECT stock.year, stock.month, " +
 	"stock.AvgRelChange-industry.AvgRelChange as Difference " +
-    "FROM (SELECT stats.year, stats.month, 100*AVG(close.Price/open.Price) as AvgRelChange " +
-    "FROM (((SELECT ap.ticker, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.day) " +
+    "FROM (SELECT stats.year, stats.month, 100-100*AVG(close.Price/open.Price) as AvgRelChange " +
+    "FROM (((SELECT ap.ticker, Year(ap.day) as year, MONTHNAME(ap.day) as month, MIN(ap.day) " +
     "as FirstDay,MAX(ap.day) as LastDay FROM AdjustedPrices ap WHERE ap.ticker=? " +
     "GROUP BY year, month) stats LEFT JOIN (SELECT ap.ticker, ap.day, ap.Open as Price " +
     "FROM AdjustedPrices ap WHERE ap.ticker=? ) open ON open.day=stats.FirstDay) " +
     "LEFT JOIN (SELECT ap.ticker, ap.day, ap.close as Price FROM AdjustedPrices ap " +
     "WHERE ap.ticker=?) close ON close.day=stats.LastDay) GROUP BY stats.year, stats.month) stock " +
-    "JOIN (SELECT stats.year, stats.month, 100*AVG(cSect.Price/oSect.Price) as AvgRelChange " +
-    "FROM (((SELECT s.Sector, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.day) " +
+    "JOIN (SELECT stats.year, stats.month, 100-100*AVG(cSect.Price/oSect.Price) as AvgRelChange " +
+    "FROM (((SELECT s.Sector, Year(ap.day) as year, MONTHNAME(ap.day) as month, MIN(ap.day) " +
     "as FirstDay,MAX(ap.day) as LastDay FROM (AdjustedPrices ap JOIN Securities s " +
     "on s.ticker=ap.ticker) WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry " +
     "FROM Securities s WHERE s.ticker=?) GROUP BY s.Sector,year, month) stats " +
@@ -53,16 +53,16 @@ public class Individual {
     "stock.month=industry.month) GROUP BY stock.year, stock.month) counts, " +
     "(SELECT counts.year, MAX(counts.Difference) as max FROM " +
     "(SELECT stock.year, stock.month, stock.AvgRelChange-industry.AvgRelChange as Difference " +
-    "FROM (SELECT stats.year, stats.month, 100*AVG(close.Price/open.Price) as AvgRelChange " +
-    "FROM (((SELECT ap.ticker, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.day) as " +
+    "FROM (SELECT stats.year, stats.month, 100-100*AVG(close.Price/open.Price) as AvgRelChange " +
+    "FROM (((SELECT ap.ticker, Year(ap.day) as year, MONTHNAME(ap.day) as month, MIN(ap.day) as " +
     "FirstDay,MAX(ap.day) as LastDay FROM AdjustedPrices ap WHERE ap.ticker=? " +
     "GROUP BY year, month) stats  LEFT JOIN (SELECT ap.ticker, ap.day, ap.Open as Price " +
     "FROM AdjustedPrices ap WHERE ap.ticker=? ) open ON open.day=stats.FirstDay) " +
     "LEFT JOIN (SELECT ap.ticker, ap.day, ap.close as Price FROM AdjustedPrices ap " +
     "WHERE ap.ticker=?) close ON close.day=stats.LastDay) GROUP BY " +
     "stats.year, stats.month) stock JOIN  (SELECT stats.year, stats.month, " +
-    "100*AVG(cSect.Price/oSect.Price) as AvgRelChange FROM (((SELECT s.Sector, Year(ap.day) as " +
-    "year, Month(ap.day) as month, MIN(ap.day) as FirstDay,MAX(ap.day) as  LastDay " +
+    "100-100*AVG(cSect.Price/oSect.Price) as AvgRelChange FROM (((SELECT s.Sector, Year(ap.day) as " +
+    "year, MONTHNAME(ap.day) as month, MIN(ap.day) as FirstDay,MAX(ap.day) as  LastDay " +
     "FROM (AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker) WHERE (s.Sector, s.Industry) " +
     "= (SELECT s.Sector, s.Industry FROM Securities s WHERE s.ticker=?) " +
     "GROUP BY s.Sector,year, month) stats  LEFT JOIN (SELECT ap.ticker, s.sector, ap.day, " +
@@ -77,20 +77,31 @@ public class Individual {
     "GROUP BY stock.year, stock.month) counts GROUP BY counts.year) max " +
 	"where max.max=counts.Difference group by counts.year;";
 	
-	private String q5 = "SELECT stats.*, AVG(open.Price) as AvgOpen, AVG(close.Price) as AvgClose, " +
-			"AVG(close.Price-open.Price) as AvgAbsChange, " +
-			"100*AVG(close.Price/open.Price) as AvgRelChange " +
-			"FROM (((SELECT ap.ticker, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.day) as FirstDay,MAX(ap.day) as  " +
-			"LastDay, AVG(ap.Volume) as AvgVol, AVG(ap.low) as MonthlyLow,  " +
-		    "AVG(ap.high) as MonthlyHigh FROM AdjustedPrices ap WHERE ap.ticker=? and ap.day<? " +
-		    "GROUP BY year, month) stats LEFT JOIN (SELECT ap.ticker, ap.day, ap.Open as Price " +
-		    "FROM AdjustedPrices ap WHERE ap.ticker=?  and ap.day<? ) open " +
-		    "ON open.day=stats.FirstDay) " +
-		    "LEFT JOIN (SELECT ap.ticker, ap.day, ap.close as Price " +
-		    "FROM AdjustedPrices ap  " +
-		    "WHERE ap.ticker=? and ap.day<?) close " +
-		    "ON close.day=stats.LastDay) " +
-		    "GROUP BY stats.year, stats.month";
+	private String q5 = "SELECT sector.year, sector.month, stock.AvgRelChange as StockChange, " +
+	"sector.AvgRelChange as SectorChange, " +
+    "stock.AvgRelChange-sector.AvgRelChange as Difference " + 
+    "FROM (SELECT stats.year, stats.month, 100-100*AVG(close.Price/open.Price) as AvgRelChange " +
+    "FROM (((SELECT ap.ticker, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.day) as " +
+    "FirstDay,MAX(ap.day) as LastDay " +
+    "FROM AdjustedPrices ap WHERE ap.ticker=? and ap.day<? " + 
+    "GROUP BY year, month) stats  LEFT JOIN (SELECT ap.ticker, ap.day, ap.Open as Price " +
+    "FROM AdjustedPrices ap WHERE ap.ticker=?  and ap.day<? ) open " +
+    "ON open.day=stats.FirstDay) LEFT JOIN (SELECT ap.ticker, ap.day, ap.close as Price " +
+    "FROM AdjustedPrices ap WHERE ap.ticker=? and ap.day<?) close " +
+    "ON close.day=stats.LastDay) GROUP BY stats.year, stats.month) stock JOIN " +
+    "(SELECT stats.year, stats.month, 100-100*AVG(cSect.Price/oSect.Price) as AvgRelChange " +
+    "FROM (((SELECT s.Sector, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.day) as " +
+    "FirstDay,MAX(ap.day) as LastDay FROM (AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker) " +
+    "WHERE (s.Sector, s.Industry) = (SELECT s.Sector, s.Industry FROM Securities s WHERE " +
+    "s.ticker=?) and ap.day<? GROUP BY s.Sector,year, month) stats " +
+    "LEFT JOIN (SELECT ap.ticker, s.sector, ap.day, ap.Open as Price " +
+    "FROM AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker WHERE (s.Sector, s.Industry) " +
+    "= (SELECT s.Sector, s.Industry FROM Securities s WHERE s.ticker=?) and ap.day<?) " +
+    "oSect ON oSect.day=stats.FirstDay) LEFT JOIN (SELECT ap.ticker, s.sector, ap.day, ap.close as Price " +
+    "FROM AdjustedPrices ap JOIN Securities s on s.ticker=ap.ticker WHERE (s.Sector, s.Industry) = " +
+    "(SELECT s.Sector, s.Industry FROM Securities s WHERE s.ticker=?) and ap.day<?) " +
+    "cSect ON cSect.day=stats.LastDay) GROUP BY stats.year, stats.month) sector on " +
+    "(sector.year=stock.year and sector.month=stock.month);";
 	
 	private String q7;
 	
@@ -189,9 +200,15 @@ public class Individual {
 			ps.setString(1, ticker);
 			ps.setString(3, ticker);
 			ps.setString(5, ticker);
+			ps.setString(7, ticker);
+			ps.setString(9, ticker);
+			ps.setString(11, ticker);
 			ps.setDate(2, java.sql.Date.valueOf("2015-01-01"));
 			ps.setDate(4, java.sql.Date.valueOf("2015-01-01"));
 			ps.setDate(6, java.sql.Date.valueOf("2015-01-01"));
+			ps.setDate(8, java.sql.Date.valueOf("2015-01-01"));
+			ps.setDate(10, java.sql.Date.valueOf("2015-01-01"));
+			ps.setDate(12, java.sql.Date.valueOf("2015-01-01"));
 			r5[0] = ps.executeQuery();
 			
 			ps.setDate(2, java.sql.Date.valueOf("2015-06-01"));
@@ -227,46 +244,46 @@ public class Individual {
 	}
 	private void query6() {
 		r6 = new ResultSet[6];
-		try {
-			PreparedStatement ps = dc.getConnection().prepareStatement(q5);
-			ps.setString(1, ticker);
-			ps.setString(3, ticker);
-			ps.setString(5, ticker);
-			ps.setDate(2, java.sql.Date.valueOf("2015-04-01"));
-			ps.setDate(4, java.sql.Date.valueOf("2015-04-01"));
-			ps.setDate(6, java.sql.Date.valueOf("2015-04-01"));
-			r6[0] = ps.executeQuery();
-			
-			ps.setDate(2, java.sql.Date.valueOf("2015-09-01"));
-			ps.setDate(4, java.sql.Date.valueOf("2015-09-01"));
-			ps.setDate(6, java.sql.Date.valueOf("2015-09-01"));
-			r6[1] = ps.executeQuery();
-			
-			ps.setDate(2, java.sql.Date.valueOf("2016-1-01"));
-			ps.setDate(4, java.sql.Date.valueOf("2016-1-01"));
-			ps.setDate(6, java.sql.Date.valueOf("2016-1-01"));
-			r6[2] = ps.executeQuery();
-			
-			ps.setDate(2, java.sql.Date.valueOf("2016-04-01"));
-			ps.setDate(4, java.sql.Date.valueOf("2016-04-01"));
-			ps.setDate(6, java.sql.Date.valueOf("2016-04-01"));
-			r6[3] = ps.executeQuery();
-			
-			ps.setDate(2, java.sql.Date.valueOf("2016-08-01"));
-			ps.setDate(4, java.sql.Date.valueOf("2016-08-01"));
-			ps.setDate(6, java.sql.Date.valueOf("2016-08-01"));
-			r6[4] = ps.executeQuery();
-			
-			ps.setDate(2, java.sql.Date.valueOf("2017-1-01"));
-			ps.setDate(4, java.sql.Date.valueOf("2017-1-01"));
-			ps.setDate(6, java.sql.Date.valueOf("2017-1-01"));
-			r6[5] = ps.executeQuery();
-			
-			//dc.closeConnection();
-		} catch (Exception ex) {
-			System.out.println("Error executing Q6");
-			ex.printStackTrace();
-		}
+//		try {
+//			PreparedStatement ps = dc.getConnection().prepareStatement(q5);
+//			ps.setString(1, ticker);
+//			ps.setString(3, ticker);
+//			ps.setString(5, ticker);
+//			ps.setDate(2, java.sql.Date.valueOf("2015-04-01"));
+//			ps.setDate(4, java.sql.Date.valueOf("2015-04-01"));
+//			ps.setDate(6, java.sql.Date.valueOf("2015-04-01"));
+//			r6[0] = ps.executeQuery();
+//			
+//			ps.setDate(2, java.sql.Date.valueOf("2015-09-01"));
+//			ps.setDate(4, java.sql.Date.valueOf("2015-09-01"));
+//			ps.setDate(6, java.sql.Date.valueOf("2015-09-01"));
+//			r6[1] = ps.executeQuery();
+//			
+//			ps.setDate(2, java.sql.Date.valueOf("2016-1-01"));
+//			ps.setDate(4, java.sql.Date.valueOf("2016-1-01"));
+//			ps.setDate(6, java.sql.Date.valueOf("2016-1-01"));
+//			r6[2] = ps.executeQuery();
+//			
+//			ps.setDate(2, java.sql.Date.valueOf("2016-04-01"));
+//			ps.setDate(4, java.sql.Date.valueOf("2016-04-01"));
+//			ps.setDate(6, java.sql.Date.valueOf("2016-04-01"));
+//			r6[3] = ps.executeQuery();
+//			
+//			ps.setDate(2, java.sql.Date.valueOf("2016-08-01"));
+//			ps.setDate(4, java.sql.Date.valueOf("2016-08-01"));
+//			ps.setDate(6, java.sql.Date.valueOf("2016-08-01"));
+//			r6[4] = ps.executeQuery();
+//			
+//			ps.setDate(2, java.sql.Date.valueOf("2017-1-01"));
+//			ps.setDate(4, java.sql.Date.valueOf("2017-1-01"));
+//			ps.setDate(6, java.sql.Date.valueOf("2017-1-01"));
+//			r6[5] = ps.executeQuery();
+//			
+//			//dc.closeConnection();
+//		} catch (Exception ex) {
+//			System.out.println("Error executing Q6");
+//			ex.printStackTrace();
+//		}
 	}
 	private void query7() {
 		

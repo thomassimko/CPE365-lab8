@@ -1,3 +1,7 @@
+/*
+ * Mitchel Davis
+ * Thomas Simko
+ */
 import java.util.List;
 
 public class Table {

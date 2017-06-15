@@ -1,3 +1,7 @@
+/*
+ * Mitchel Davis
+ * Thomas Simko
+ */
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;

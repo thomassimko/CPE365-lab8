@@ -1,3 +1,7 @@
+/*
+ * Mitchel Davis
+ * Thomas Simko
+ */
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;

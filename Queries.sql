@@ -1,3 +1,7 @@
+-- Mitchel Davis
+-- Thomas Simko
+
+
 -- General Q1
 
 SELECT Start, End, PriceInc, PriceDec

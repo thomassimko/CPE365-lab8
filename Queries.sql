@@ -469,6 +469,8 @@ FROM (((SELECT ap.ticker, Year(ap.day) as year, Month(ap.day) as month, MIN(ap.d
               WHERE ap.ticker='KLAC' and YEAR(ap.day)=2016) close
    ON close.day=stats.LastDay)
 GROUP BY stats.year, stats.month;
+<<<<<<< HEAD
+=======
 
 
 
@@ -559,3 +561,4 @@ WHERE p1.ticker = p3.ticker and p2.ticker = p4.ticker and p1.ticker = endDate.t1
 
 
 
+>>>>>>> b7667dcf50c528c7a1c43c71c188c3bb6005ee78

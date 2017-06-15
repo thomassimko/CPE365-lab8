@@ -1,3 +1,4 @@
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +27,7 @@ public class Driver {
 			ticker2 = "KLAC";
 		Individual ind = new Individual(dc, ticker, ticker2);
 		General gen = new General(dc);
-		HtmlWriter html = new HtmlWriter(args[0], "KLAC Analysis");
+		HtmlWriter html = new HtmlWriter(args[0], ticker + " Analysis");
 		
 		Analyzer anal = new Analyzer();
 
@@ -160,10 +161,38 @@ public class Driver {
 		}
 		html.addTable(t4.getTable());
 		html.addText("compares the stocks relative performance to the sector and industry average relative performance to\n determine the best performance of the stock by month");
+		
+		
+		//Query 5
+		html.addHeading("5. Reporting Signals on Dates");
+		Table t5 = new Table();
+		List<String> t5Columns = new ArrayList<String>();
+		t5Columns.add("Date");
+		t5Columns.add("Signal");
+		t5.addColumns(t5Columns);
+		for(List<String> tuple : anal.ind5(ind.getR5())) {
+			t5.addRow(tuple);
+		}
+		
+		html.addTable(t5.getTable());
+		html.addText("Reports are calculated based on the sector's relative growth in comparison to the market's relative growth.");
 
+		//Query 6
+		html.addHeading("6. Reporting Signals on Dates");
+		Table t6 = new Table();
+		List<String> t6Columns = new ArrayList<String>();
+		t6Columns.add("Date");
+		t6Columns.add("Prediction");
+		t6Columns.add("Actual Performance");
+		t6Columns.add("isCorrect");
+		t6.addColumns(t6Columns);
+		for(List<String> tuple : anal.ind6(ind.getR6())) {
+			t6.addRow(tuple);
+		}
 		
-		
-		
+		html.addTable(t6.getTable());
+		html.addText("Reports are calculated based on the sector's relative growth in comparison to the market's relative growth.");
+
 		//Query 7
 		
 		html.addHeading("7. " + ticker + " vs. Top Five of 2016");
@@ -191,9 +220,7 @@ public class Driver {
 		}
 		html.addTable(t8.getTable());
 		html.addText(anal.indiv8(r8, ticker, ticker2));
-		
-		
+				
 		html.publishHtml();
-		
 	}
 }

@@ -6,7 +6,37 @@ mdavis60@calpoly.edu
 
 Running the program:
 
+   javac *.java
+
    java Driver [ticker name]
+
+
+ GENERAL STOCK ANALYSIS METRICS
+
+   For all analysis problems the Relative Growth 
+      (Closing Price of Period / Opening Price of Period)
+   was used.
+
+
+   For generating the report based on Sector, the Sector's relative growth is
+   compared to the entire stock excahnge growth.  The calculation is the 
+   (sector's relative growth - overall realtive growth).  The resulting value
+   is mapped to a report based on the table below:
+
+   less than -.1 : "Tanking it."
+   -.1 to -.05 : "Diminishing returns."
+   -.05 to 0 : "Trying to hold on."
+   0 to .05 : "Showing resilience."
+   .05 to .08 : "Slowly growing."
+   .08 to .12 : "Doing quite well.";
+   .12 to .15 : "Rapid growth."
+   .15 and up : "Significantly Outperforming."
+
+   These values multipled by 100 show the percentage of the sector's growth in
+   comparison to the market as a whole.  We determined that falling behind the 
+   market by 10% is a major decrease and exceeding the market by 15% shows that 
+   the sector is performing very well.
+
 
  INDIVIDUAL STOCK ANALYSIS METRICS
 

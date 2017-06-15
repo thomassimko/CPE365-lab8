@@ -59,7 +59,6 @@ public class Analyzer {
 			
 			// add the date for the BHS prediction
 			row.add(table);
-			System.out.println(table);
 			
 			//Generate the BHS signal for the date and add it to the row
 				//Get the corresponding table for the date (table)
@@ -78,17 +77,11 @@ public class Analyzer {
 				double stockChange = (double)tuple.get("StockChange");
 				double diff = (double)tuple.get("Difference");
 				
-				System.out.println("Year: " + year + " Month: " + month + " stockChange: " 
-						+ stockChange + " diff: " + diff);
-				
 				int stockBHS = getBHSSignalSingle(stockChange);
 				int diffBHS = getBHSSignalSingle(diff);
 				aggBHS += getBHSSignal(stockBHS, diffBHS);
 				
-				System.out.println("\taggBHS: " + aggBHS + " Stock BHS: " 
-						+ stockBHS + " diff BHS: " + diffBHS);
 			}
-			System.out.println();
 			row.add(getAggBHSSignal(aggBHS));
 			returnTable.add(row);
 		}
@@ -189,7 +182,6 @@ public class Analyzer {
 			
 			// add the date for the BHS prediction
 			row.add(table);
-			System.out.println(table);
 			
 			//Generate the BHS signal for the date and add it to the row
 				//Get the corresponding table for the date (table)
@@ -208,17 +200,10 @@ public class Analyzer {
 				double stockChange = (double)tuple.get("StockChange");
 				double diff = (double)tuple.get("Difference");
 				
-				System.out.println("Year: " + year + " Month: " + month + " stockChange: " 
-						+ stockChange + " diff: " + diff);
-				
 				int stockBHS = getBHSSignalSingle(stockChange);
 				int diffBHS = getBHSSignalSingle(diff);
 				aggBHS += getBHSSignal(stockBHS, diffBHS);
-				
-				System.out.println("\taggBHS: " + aggBHS + " Stock BHS: " 
-						+ stockBHS + " diff BHS: " + diffBHS);
 			}
-			System.out.println();
 			row.add(getAggBHSSignal6(aggBHS));
 			returnTable.add(row);
 		}

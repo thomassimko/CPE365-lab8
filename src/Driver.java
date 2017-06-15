@@ -27,7 +27,7 @@ public class Driver {
 			ticker2 = "KLAC";
 		Individual ind = new Individual(dc, ticker, ticker2);
 		General gen = new General(dc);
-		HtmlWriter html = new HtmlWriter(args[0], "KLAC Analysis");
+		HtmlWriter html = new HtmlWriter(args[0], ticker + " Analysis");
 		
 		Analyzer anal = new Analyzer();
 

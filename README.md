@@ -11,6 +11,12 @@ Running the program:
    java Driver [ticker name]
 
 
+The command line parameter is the name of the ticker (without quotes)
+
+EX:
+   java Driver KLAC
+
+
  GENERAL STOCK ANALYSIS METRICS
 
    For all analysis problems the Relative Growth 
@@ -124,4 +130,10 @@ would produce the following signals
 +------+-------+--------------------+-----------+-----------+------------+
                                                 | SUM       |  3         |
                                                 +-----------+------------+
+
+
+(Didn't see "If you want to create additional
+   tables or views of the data to help your analysis, you will do so in a 
+   different database" until the end.  Sorry for the massive SQL statements.
+   For readability, we have included our SQL queries in Queries.sql)
 
